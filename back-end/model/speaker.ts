@@ -5,13 +5,13 @@ export class Speaker {
     private id?: number;
     private user: User;
     private expertise: string;
-    private events: Event[];
+    private events?: Event[];
 
     constructor(speaker: {
         id?: number;
         user: User;
         expertise: string;
-        events: Event[];
+        events?: Event[];
     }) {
         this.id = speaker.id;
         this.user = speaker.user;
@@ -31,7 +31,7 @@ export class Speaker {
         return this.expertise;
     }
 
-    getEvents(): Event[] {
+    getEvents(): Event[] | undefined {
         return this.events;
     }
 

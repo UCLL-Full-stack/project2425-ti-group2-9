@@ -5,13 +5,13 @@ export class Organizer {
     private id?: number;
     private user: User;
     private companyName: string;
-    private events: Event[];
+    private events?: Event[];
 
     constructor(organizer: {
         id?: number,
         user: User,
         companyName: string,
-        events: Event[]
+        events?: Event[]
     }) {
         this.id = organizer.id;
         this.user = organizer.user;
@@ -31,7 +31,7 @@ export class Organizer {
         return this.companyName;
     }
 
-    getEvents(): Event[] {
+    getEvents(): Event[] | undefined{
         return this.events;
     }
 
