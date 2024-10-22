@@ -79,3 +79,21 @@ const userSpeaker = new User({
     expect(event.getSpeakers()).toEqual([speaker]);
     expect(event.getParticipants()).toEqual([participant]);
  })
+
+ test(' given startdate greater then end date, when creating event, throws an error', () => {
+   //given: 
+   const invalidStartDate = set(new Date(), { year: 2024, month: 1, date: 15 });
+   const invalidEndDate = set(new Date(), { year: 2024, month: 1, date: 13 });
+   //when: creating the event
+   const createdEvent = () => new Event({
+      name,
+      description,
+      category,
+      startDate: invalidStartDate,
+      endDate: invalidEndDate,
+      organizer,
+      speakers: [speaker],
+      participants: [participant],
+   });
+   expect(createdEvent).toThrow('Start date and end date should be valid and the start date should be earlier than the end date');
+ })

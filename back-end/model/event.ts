@@ -24,6 +24,8 @@ export class Event {
         speakers: Speaker[];
         participants?: Participant[];
     }){
+        this.validate(event);
+
         this.id = event.id;
         this.name = event.name;
         this.description = event.description;
@@ -69,6 +71,18 @@ export class Event {
 
     getParticipants(): Participant[] | undefined{
         return this.participants;
+    }
+
+    validate(event: { name: string, description: string, category: string, startDate: Date, endDate: Date, organizer: Organizer, speakers: Speaker[], participants?: Participant[] }): void {
+        if(typeof event.name!=='string' || event.name.trim().length === 0){
+            throw new Error('Event name is required');
+        }
+        if(typeof event.description!=='string' || event.description.trim().length === 0){
+            throw new Error('Event description is required');
+        }
+        if(event.startDate > event.endDate){
+            throw new Error('Start date and end date should be valid and the start date should be earlier than the end date');
+        }
     }
 
     equals(event: Event): boolean{
