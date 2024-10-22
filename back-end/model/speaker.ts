@@ -33,7 +33,14 @@ export class Speaker {
         return this.expertise;
     }
 
-    val
+    validate(speaker: {user: User, expertise: string,}){
+        if (!speaker.user) {
+            throw new Error("User is required");
+        }
+        if (!speaker.expertise) {
+            throw new Error("Expertise is required");
+        }
+    }
 
     getEvents(): Event[] | undefined {
         return this.events;

@@ -22,3 +22,12 @@ test('given: valid values for speaker when: speaker created, then speaker has th
     expect(speaker.getUser()).toEqual(user);
     expect(speaker.getExpertise()).toEqual(expertise);
 });
+
+test('given: empty expertise for speaker when: creating speaker, then error is thrown', () => {
+    //given
+    const emptyExpertise = '';
+    //when
+    const speaker = () => new Speaker({user, expertise: emptyExpertise});
+    //then
+    expect(speaker).toThrow('Expertise is required');
+});
