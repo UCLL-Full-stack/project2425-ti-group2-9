@@ -13,6 +13,8 @@ export class Speaker {
         expertise: string;
         events?: Event[];
     }) {
+        this.validate(speaker);
+
         this.id = speaker.id;
         this.user = speaker.user;
         this.expertise = speaker.expertise;
@@ -30,6 +32,8 @@ export class Speaker {
     getExpertise(): string {
         return this.expertise;
     }
+
+    val
 
     getEvents(): Event[] | undefined {
         return this.events;
