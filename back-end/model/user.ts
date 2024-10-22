@@ -18,6 +18,8 @@ export class User {
         password: string;
         role: Role;
     }) {
+        this.validate(user);
+
         this.id = user.id;
         this.username = user.username;
         this.firstName = user.firstName;
@@ -53,6 +55,33 @@ export class User {
 
     getRole(): Role {
         return this.role;
+    }
+
+    validate(user:{ username:string, firstName: string, lastName: string, email:string, password:string, role: Role}){
+        if(!user.username){
+            throw new Error('Username is required');
+        }
+        if(!user.firstName){
+            throw new Error('First name is required');
+        }
+        if(!user.lastName){
+            throw new Error('Last name is required');
+        }
+        if(!user.email){
+            throw new Error('Email is required');
+        }
+        if(!user.password){
+            throw new Error('Password is required');
+        }
+        if(!user.role){
+            throw new Error('Role is required');
+        }
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(user.email)) {
+            throw new Error('Invalid email');
+        }
+        
     }
 
     equals(user: User): boolean {

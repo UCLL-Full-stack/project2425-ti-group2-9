@@ -24,4 +24,12 @@ test('given: valid values for user, when: user is created, then user will be cre
     expect(user.getEmail()).toEqual(email);
     expect(user.getPassword()).toEqual(password);
     expect(user.getRole()).toEqual(role);
-})
+});
+
+test('given: invalid email for user, when: user is created, then an error is thrown', () => {
+    //given 
+    const invalidEmail = 'senne@test';
+    //when
+    const user = () => new User( {username, firstName,lastName,email:invalidEmail ,password,role,});
+    expect(user).toThrow();
+});
