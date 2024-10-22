@@ -20,3 +20,15 @@ test('given: valid values for organizer when: organizer created, then organizer 
     expect(organizer.getUser()).toEqual(user);
     expect(organizer.getCompanyName()).toEqual(companyName);
 })
+
+test('given: empty value for company name when: organizer created, then organizer throws error', () => {
+    //given
+    const emptyCompanyName = '  ';
+    //when
+    const organizer = () => new Organizer({
+        companyName: emptyCompanyName,
+        user,
+    });
+    //then
+    expect(organizer).toThrow("Company name is required");
+})

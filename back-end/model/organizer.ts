@@ -13,6 +13,8 @@ export class Organizer {
         companyName: string,
         events?: Event[]
     }) {
+        this.validate(organizer);
+
         this.id = organizer.id;
         this.user = organizer.user;
         this.companyName = organizer.companyName;
@@ -33,6 +35,15 @@ export class Organizer {
 
     getEvents(): Event[] | undefined{
         return this.events;
+    }
+
+    validate(organizer: { companyName: string, user: User }) {
+        if (organizer.companyName === undefined || organizer.companyName.trim() === "") {
+            throw new Error("Company name is required");
+        }
+        if (organizer.user === undefined) {
+            throw new Error("User is required");
+        }
     }
 
     eaquals(organizer: Organizer): boolean {
