@@ -26,3 +26,13 @@ test('given: valid values for participant when: participant created, then partic
     expect(participant.getUser()).toEqual(user);
     expect(participant.getDateOfBirth()).toEqual(dateOfBirth);
 })
+
+test('given: invalid future date of birth when: participant created, then: an error is thrown', () => {
+    //given
+    const futureDateOfBirth = set(new Date(), { year: 2090, month: 1, date: 12 });
+    //when
+    const participant = () => new Participant({user,dateOfBirth: futureDateOfBirth});
+    //then
+    expect(participant).toThrow("Invalid date of birth");
+    
+});
