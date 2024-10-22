@@ -6,6 +6,8 @@ import swaggerJSDoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 import { participantRouter } from './controller/participant.routes';
 import { userRouter } from './controller/user.routes';
+import { organizerRouter } from './controller/organizer.routes';
+import { speakerRouter } from './controller/speaker.routes';
 
 const app = express();
 dotenv.config();
@@ -16,6 +18,10 @@ app.use(bodyParser.json());
 
 app.use('/participants', participantRouter);
 app.use('/users', userRouter);
+app.use('/organizers', organizerRouter)
+app.use('/speakers', speakerRouter);
+//TO DO:
+// Implement events routing here
 
 app.get('/status', (req, res) => {
     res.json({ message: 'Back-end is running...' });
