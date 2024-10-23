@@ -37,7 +37,7 @@ const getAllOrganizers = () => {
 };
 
 const getOrganizerById = (id: number): Organizer => {
-    const organizer = organizerDb.getOrganizerById(id);
+    const organizer = organizerDb.getOrganizerById({id});
     if (!organizer) {
         throw new Error(`Organizer with id ${id} not found.`);
     }

@@ -8,6 +8,7 @@ import { participantRouter } from './controller/participant.routes';
 import { userRouter } from './controller/user.routes';
 import { organizerRouter } from './controller/organizer.routes';
 import { speakerRouter } from './controller/speaker.routes';
+import { eventRouter } from './controller/event.routes';
 
 const app = express();
 dotenv.config();
@@ -20,8 +21,7 @@ app.use('/participants', participantRouter);
 app.use('/users', userRouter);
 app.use('/organizers', organizerRouter)
 app.use('/speakers', speakerRouter);
-//TO DO:
-// Implement events routing here
+app.use('/events', eventRouter);
 
 app.get('/status', (req, res) => {
     res.json({ message: 'Back-end is running...' });

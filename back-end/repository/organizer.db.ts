@@ -24,7 +24,7 @@ const getAllOrganizers = (): Organizer[] => {
     return organizers;
 };
 
-const getOrganizerById = (id: number): Organizer | undefined => {
+const getOrganizerById = ({id}:{id: number}): Organizer | undefined => {
     return organizers.find((organizer) => organizer.getId() === id);
 };
 
