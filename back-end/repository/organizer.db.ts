@@ -1,7 +1,5 @@
 import { Organizer } from "../model/organizer";
 import { User } from "../model/user";
-import { Event } from "../model/event";
-import { Speaker } from "../model/speaker";
 
 // Dummy User instances
 const user1 = new User({username: "john123", password:'password',  firstName:'John',lastName:'Doe', email: "john@example.com", role: 'organizer' });
