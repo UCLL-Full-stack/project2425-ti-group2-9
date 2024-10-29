@@ -2,8 +2,9 @@ import React, { useEffect, useState } from 'react';
 import Head from 'next/head';
 import { Organizer } from '@types';
 import OrganizerService from '@services/OrganizerService';
-import OrganizerOverviewTable from '@components/OrganizerOverviewTable';
-import EventOverviewTable from '@components/EventOverviewTable';
+import OrganizerOverviewTable from '@components/organizers/OrganizerOverviewTable';
+import EventOverviewTable from '@components/events/EventOverviewTable';
+import Header from '@components/headers';
 
 const organizers: React.FC = () => {
     const [organizers, setOrganizers] = useState<Array<Organizer>>();
@@ -28,6 +29,7 @@ const organizers: React.FC = () => {
             <Head>
                 <title>Organizers</title>
             </Head>
+            <Header />
             <main className="d-flex flex-column justify-content-center align-items-center">
                 <h2>Organizers</h2>
                 <section>
