@@ -1,23 +1,27 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { useTranslation } from 'next-i18next';
-import { StatusMessage, Event } from '@types'; // Adjust import path as needed
+import { StatusMessage, Event, Organizer, Speaker } from '@types'; // Adjust import path as needed
 import EventService from '@services/EventService'; // Adjust import path as needed
+import OrganizerService from '@services/OrganizerService'; // Adjust import path as needed
+import SpeakerService from '@services/SpeakerService'; // Adjust import path as needed
 
 const EventForm: React.FC = () => {
   const { t } = useTranslation();
-  
+
   const [formData, setFormData] = useState<Event>({
     name: '',
     description: '',
     category: '',
     startDate: new Date(),
     endDate: new Date(),
-    organizer: { id: 0, user: { username: '', email: '' }, companyName: '', events: [] }, // Adjust the default values as needed
+    organizer: { id: 0, user: { username: '', email: '' }, companyName: '', events: [] },
     speakers: [],
   });
 
   const [statusMessages, setStatusMessages] = useState<StatusMessage[]>([]);
+  const [organizers, setOrganizers] = useState<Organizer[]>([]);
+  const [speakers, setSpeakers] = useState<Speaker[]>([]); // State to hold speakers
 
   const clearMessages = () => {
     setStatusMessages([]);
@@ -31,18 +35,26 @@ const EventForm: React.FC = () => {
     }));
   };
 
-  const handleOrganizerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData((prevData) => ({
-      ...prevData,
-      organizer: { ...prevData.organizer, id: Number(e.target.value) },
-    }));
+  const handleOrganizerChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedOrganizerId = Number(e.target.value);
+    const selectedOrganizer = organizers.find(org => org.id === selectedOrganizerId);
+    if (selectedOrganizer) {
+      setFormData((prevData) => ({
+        ...prevData,
+        organizer: selectedOrganizer,
+      }));
+    }
   };
 
-  const handleAddSpeaker = (speakerId: number) => {
-    setFormData((prevData) => ({
-      ...prevData,
-      speakers: [...prevData.speakers, { id: speakerId, user: { username: '', email: '' }, expertise: '' }],
-    }));
+  const handleSpeakerChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedSpeakerId = Number(e.target.value);
+    const selectedSpeaker = speakers.find(sp => sp.id === selectedSpeakerId);
+    if (selectedSpeaker) {
+      setFormData((prevData) => ({
+        ...prevData,
+        speakers: [...prevData.speakers, selectedSpeaker],
+      }));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -62,6 +74,40 @@ const EventForm: React.FC = () => {
       setStatusMessages([{ message: t('general.error'), type: 'error' }]);
     }
   };
+
+  // Fetch all organizers on component mount
+  useEffect(() => {
+    const fetchOrganizers = async () => {
+      try {
+        const response = await OrganizerService.getAllOrganizers();
+        if (response.ok) {
+          const data = await response.json();
+          setOrganizers(data);
+        } else {
+          setStatusMessages([{ message: t('general.error'), type: 'error' }]);
+        }
+      } catch (error) {
+        setStatusMessages([{ message: t('general.error'), type: 'error' }]);
+      }
+    };
+
+    const fetchSpeakers = async () => {
+      try {
+        const response = await SpeakerService.getAllSpeakers(); // Adjust according to your API service
+        if (response.ok) {
+          const data = await response.json();
+          setSpeakers(data); // Assuming the response is an array of speakers
+        } else {
+          setStatusMessages([{ message: t('general.error'), type: 'error' }]);
+        }
+      } catch (error) {
+        setStatusMessages([{ message: t('general.error'), type: 'error' }]);
+      }
+    };
+
+    fetchOrganizers();
+    fetchSpeakers();
+  }, [t]);
 
   return (
     <div>
@@ -97,18 +143,25 @@ const EventForm: React.FC = () => {
           <input type="datetime-local" name="endDate" onChange={(e) => setFormData({ ...formData, endDate: new Date(e.target.value) })} required />
         </label>
         <label>
-          Organizer ID:
-          <input type="number" value={formData.organizer.id} onChange={handleOrganizerChange} required />
+          Organizer:
+          <select onChange={handleOrganizerChange} required>
+            <option value="">Select an Organizer</option>
+            {organizers.map((organizer) => (
+              <option key={organizer.id} value={organizer.id}>
+                {organizer.companyName} (ID: {organizer.id})
+              </option>
+            ))}
+          </select>
         </label>
         <label>
-          Speaker IDs:
-          <input type="number" placeholder="Enter Speaker ID" onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              handleAddSpeaker(Number(e.currentTarget.value));
-              e.currentTarget.value = '';
-            }
-          }} />
+          Speakers:
+          <select onChange={handleSpeakerChange} multiple>
+            {speakers.map((speaker) => (
+              <option key={speaker.id} value={speaker.id}>
+                {speaker.user.firstName} {speaker.user.lastName}
+              </option>
+            ))}
+          </select>
         </label>
         <button type="submit">Add Event</button>
       </form>
