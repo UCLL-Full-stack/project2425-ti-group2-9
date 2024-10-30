@@ -1,9 +1,21 @@
+export type StatusMessage = {
+    message: string;
+    type: "error" | "success";
+};
+
 export type Organizer = {
     id: number;
     user: User;
     companyName: string;
     events: Event[];
 }
+
+export type Speaker = {
+    id?: number;
+    user: User;
+    expertise: string;
+    events?: Event[];
+};
 
 export type Event = {
     id?: number;
@@ -13,7 +25,7 @@ export type Event = {
     startDate: Date;
     endDate: Date;
     organizer: Organizer;
-    // speakers: SpeakerInput[];
+    speakers: Speaker[];
     // participants?: ParticipantInput[];
 };
 

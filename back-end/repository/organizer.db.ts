@@ -8,9 +8,9 @@ const user3 = new User({username: "senne123",password:"password" , firstName:'Se
 
 // Initialize organizers array with dummy data
 const organizers: Organizer[] = [
-    new Organizer({ user: user1, companyName: "John's Eventing" }),
-    new Organizer({ user: user2, companyName: "Jane's Business" }),
-    new Organizer({ user: user3, companyName: "Senne's Club" })
+    new Organizer({ id:1, user: user1, companyName: "John's Eventing" }),
+    new Organizer({ id:2, user: user2, companyName: "Jane's Business" }),
+    new Organizer({ id:3, user: user3, companyName: "Senne's Club" })
 ];
 
 const createOrganizer = ({

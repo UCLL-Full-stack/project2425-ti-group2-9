@@ -31,9 +31,9 @@ const user3 = new User({
 
 // Initialize speakers array with dummy data
 const speakers: Speaker[] = [
-    new Speaker({ user: user1, expertise: "AI and Machine Learning" }),
-    new Speaker({ user: user2, expertise: "Cybersecurity" }),
-    new Speaker({ user: user3, expertise: "Cloud Computing" })
+    new Speaker({ id:1, user: user1, expertise: "AI and Machine Learning" }),
+    new Speaker({ id:2, user: user2, expertise: "Cybersecurity" }),
+    new Speaker({ id:3, user: user3, expertise: "Cloud Computing" })
 ];
 
 // Functions for managing speakers
