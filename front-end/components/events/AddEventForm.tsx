@@ -21,11 +21,9 @@ const EventForm: React.FC = () => {
 
   const [statusMessages, setStatusMessages] = useState<StatusMessage[]>([]);
   const [organizers, setOrganizers] = useState<Organizer[]>([]);
-  const [speakers, setSpeakers] = useState<Speaker[]>([]); // State to hold speakers
+  const [speakers, setSpeakers] = useState<Speaker[]>([]);
 
-  const clearMessages = () => {
-    setStatusMessages([]);
-  };
+  const clearMessages = () => setStatusMessages([]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -37,7 +35,7 @@ const EventForm: React.FC = () => {
 
   const handleOrganizerChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedOrganizerId = Number(e.target.value);
-    const selectedOrganizer = organizers.find(org => org.id === selectedOrganizerId);
+    const selectedOrganizer = organizers.find((org) => org.id === selectedOrganizerId);
     if (selectedOrganizer) {
       setFormData((prevData) => ({
         ...prevData,
@@ -48,7 +46,7 @@ const EventForm: React.FC = () => {
 
   const handleSpeakerChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedSpeakerId = Number(e.target.value);
-    const selectedSpeaker = speakers.find(sp => sp.id === selectedSpeakerId);
+    const selectedSpeaker = speakers.find((sp) => sp.id === selectedSpeakerId);
     if (selectedSpeaker) {
       setFormData((prevData) => ({
         ...prevData,
@@ -64,18 +62,16 @@ const EventForm: React.FC = () => {
     try {
       const response = await EventService.createEvent(formData);
       if (response.ok) {
-        setStatusMessages([{ message: t('event.success'), type: 'success' }]);
-        // Reset form or perform any other actions after successful submission
+        setStatusMessages([{ message: 'Your event is successfully registered', type: 'success' }]);
       } else {
         const errorData = await response.json();
-        setStatusMessages([{ message: errorData.errorMessage || t('general.error'), type: 'error' }]);
+        setStatusMessages([{ message: errorData.errorMessage || 'general.error', type: 'error' }]);
       }
     } catch (error) {
-      setStatusMessages([{ message: t('general.error'), type: 'error' }]);
+      setStatusMessages([{ message: 'general.error', type: 'error' }]);
     }
   };
 
-  // Fetch all organizers on component mount
   useEffect(() => {
     const fetchOrganizers = async () => {
       try {
@@ -93,10 +89,10 @@ const EventForm: React.FC = () => {
 
     const fetchSpeakers = async () => {
       try {
-        const response = await SpeakerService.getAllSpeakers(); // Adjust according to your API service
+        const response = await SpeakerService.getAllSpeakers();
         if (response.ok) {
           const data = await response.json();
-          setSpeakers(data); // Assuming the response is an array of speakers
+          setSpeakers(data);
         } else {
           setStatusMessages([{ message: t('general.error'), type: 'error' }]);
         }
@@ -107,64 +103,134 @@ const EventForm: React.FC = () => {
 
     fetchOrganizers();
     fetchSpeakers();
-  }, [t]);
+  }, );
 
   return (
-    <div>
-      <h3>{t('event.title')}</h3>
-      {statusMessages.length > 0 && (
-        <ul className="list-none">
-          {statusMessages.map(({ message, type }, index) => (
-            <li key={index} className={classNames({ 'text-red-800': type === 'error', 'text-green-800': type === 'success' })}>
-              {message}
-            </li>
-          ))}
-        </ul>
-      )}
-      <form onSubmit={handleSubmit}>
-        <label>
-          Event Name:
-          <input type="text" name="name" value={formData.name} onChange={handleChange} required />
-        </label>
-        <label>
-          Description:
-          <textarea name="description" value={formData.description} onChange={handleChange} required />
-        </label>
-        <label>
-          Category:
-          <input type="text" name="category" value={formData.category} onChange={handleChange} required />
-        </label>
-        <label>
-          Start Date:
-          <input type="datetime-local" name="startDate" onChange={(e) => setFormData({ ...formData, startDate: new Date(e.target.value) })} required />
-        </label>
-        <label>
-          End Date:
-          <input type="datetime-local" name="endDate" onChange={(e) => setFormData({ ...formData, endDate: new Date(e.target.value) })} required />
-        </label>
-        <label>
-          Organizer:
-          <select onChange={handleOrganizerChange} required>
-            <option value="">Select an Organizer</option>
-            {organizers.map((organizer) => (
-              <option key={organizer.id} value={organizer.id}>
-                {organizer.companyName} (ID: {organizer.id})
-              </option>
+    <div className="max-w-6xl mx-auto p-8 bg-white shadow-lg rounded-lg grid grid-cols-1 md:grid-cols-2 gap-8">
+      {/* Left side - Description */}
+      <div className="flex flex-col justify-center">
+        <h2 className="text-2xl font-semibold text-gray-800">{'Register a New Event'}</h2>
+        <p className="text-gray-600 mt-4">
+          {t('event.description', 'Please fill out the following fields to register a new event. Make sure to choose the appropriate organizer and add all relevant speakers.')}
+        </p>
+        <p className="text-gray-600 mt-2">
+          {t('event.instructions', 'Once submitted, the event will be available for participants to view and register.')}
+        </p>
+      </div>
+
+      {/* Right side - Form */}
+      <div>
+        {statusMessages.length > 0 && (
+          <ul className="mb-4 space-y-2">
+            {statusMessages.map(({ message, type }, index) => (
+              <li key={index} className={classNames('text-sm p-2 rounded', {
+                'bg-red-100 text-red-800': type === 'error',
+                'bg-green-100 text-green-800': type === 'success',
+              })}>
+                {message}
+              </li>
             ))}
-          </select>
-        </label>
-        <label>
-          Speakers:
-          <select onChange={handleSpeakerChange} multiple>
-            {speakers.map((speaker) => (
-              <option key={speaker.id} value={speaker.id}>
-                {speaker.user.firstName} {speaker.user.lastName}
-              </option>
-            ))}
-          </select>
-        </label>
-        <button type="submit">Add Event</button>
-      </form>
+          </ul>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-gray-700">Event Name</label>
+            <input
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              required
+              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+            />
+          </div>
+
+          <div>
+            <label className="block text-gray-700">Description</label>
+            <textarea
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
+              required
+              className="mt-8 block w-full border-gray-300 rounded-md shadow-sm"
+            />
+          </div>
+
+          <div>
+            <label className="block text-gray-700">Category</label>
+            <input
+              type="text"
+              name="category"
+              value={formData.category}
+              onChange={handleChange}
+              required
+              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-gray-700">Start Date</label>
+              <input
+                type="datetime-local"
+                name="startDate"
+                onChange={(e) => setFormData({ ...formData, startDate: new Date(e.target.value) })}
+                required
+                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+              />
+            </div>
+            <div>
+              <label className="block text-gray-700">End Date</label>
+              <input
+                type="datetime-local"
+                name="endDate"
+                onChange={(e) => setFormData({ ...formData, endDate: new Date(e.target.value) })}
+                required
+                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-gray-700">Organizer</label>
+            <select
+              onChange={handleOrganizerChange}
+              required
+              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+            >
+              <option value="">{'Select the organizer'}</option>
+              {organizers.map((organizer) => (
+                <option key={organizer.id} value={organizer.id}>
+                  {organizer.companyName} (ID: {organizer.id})
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-gray-700">Speakers</label>
+            <select
+              onChange={handleSpeakerChange}
+              multiple
+              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+            >
+              {speakers.map((speaker) => (
+                <option key={speaker.id} value={speaker.id}>
+                  {speaker.user.firstName} {speaker.user.lastName}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <button
+            type="submit"
+            className="w-full py-2 px-4 bg-blue-600 text-white font-semibold rounded-md shadow-sm hover:bg-blue-700"
+          >
+            Register Event
+          </button>
+        </form>
+      </div>
     </div>
   );
 };
