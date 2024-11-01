@@ -22,6 +22,7 @@ const EventForm: React.FC = () => {
   const [statusMessages, setStatusMessages] = useState<StatusMessage[]>([]);
   const [organizers, setOrganizers] = useState<Organizer[]>([]);
   const [speakers, setSpeakers] = useState<Speaker[]>([]);
+  const [selectedOrganizer, setSelectedOrganizer] = useState<number | null>(null);
 
   const clearMessages = () => setStatusMessages([]);
 
@@ -43,6 +44,24 @@ const EventForm: React.FC = () => {
       }));
     }
   };
+
+  const [dropdownOpenOrganizer, setDropdownOpenOrganizer] = useState(false);
+  const [dropdownOpenSpeaker, setDropdownOpenSpeaker] = useState(false);
+
+  const toggleDropdownOrganizer = () => setDropdownOpenOrganizer((prev) => !prev);
+  const toggleDropdownSpeaker = () => setDropdownOpenSpeaker((prev) => !prev);
+
+  const handleSpeakerToggle = (speaker: Speaker) => {
+    setFormData((prevData) => {
+      const isSelected = prevData.speakers.some((s) => s.id === speaker.id);
+      const newSpeakers = isSelected
+        ? prevData.speakers.filter((s) => s.id !== speaker.id)
+        : [...prevData.speakers, speaker];
+      return { ...prevData, speakers: newSpeakers };
+    });
+  };
+
+  
 
   const handleSpeakerChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedSpeakerId = Number(e.target.value);
@@ -72,34 +91,35 @@ const EventForm: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    const fetchOrganizers = async () => {
-      try {
-        const response = await OrganizerService.getAllOrganizers();
-        if (response.ok) {
-          const data = await response.json();
-          setOrganizers(data);
-        } else {
-          setStatusMessages([{ message: t('general.error'), type: 'error' }]);
-        }
-      } catch (error) {
+  const fetchOrganizers = async () => {
+    try {
+      const response = await OrganizerService.getAllOrganizers();
+      if (response.ok) {
+        const data = await response.json();
+        setOrganizers(data);
+      } else {
         setStatusMessages([{ message: t('general.error'), type: 'error' }]);
       }
-    };
+    } catch (error) {
+      setStatusMessages([{ message: t('general.error'), type: 'error' }]);
+    }
+  };
 
-    const fetchSpeakers = async () => {
-      try {
-        const response = await SpeakerService.getAllSpeakers();
-        if (response.ok) {
-          const data = await response.json();
-          setSpeakers(data);
-        } else {
-          setStatusMessages([{ message: t('general.error'), type: 'error' }]);
-        }
-      } catch (error) {
+  const fetchSpeakers = async () => {
+    try {
+      const response = await SpeakerService.getAllSpeakers();
+      if (response.ok) {
+        const data = await response.json();
+        setSpeakers(data);
+      } else {
         setStatusMessages([{ message: t('general.error'), type: 'error' }]);
       }
-    };
+    } catch (error) {
+      setStatusMessages([{ message: t('general.error'), type: 'error' }]);
+    }
+  };
+
+  useEffect(() => {
 
     fetchOrganizers();
     fetchSpeakers();
@@ -208,20 +228,45 @@ const EventForm: React.FC = () => {
             </select>
           </div>
 
-          <div>
-            <label className="block text-gray-700">Speakers</label>
-            <select
-              onChange={handleSpeakerChange}
-              multiple
-              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+          <div className="relative">
+          <button
+              id="dropdownBgHoverButton"
+              onClick={toggleDropdownSpeaker}
+              className="text-gray-700 bg-gray-200 hover:bg-gray-300 focus:ring-4 focus:outline-none focus:ring-gray-400 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center"
+              type="button"
             >
-              {speakers.map((speaker) => (
-                <option key={speaker.id} value={speaker.id}>
-                  {speaker.user.firstName} {speaker.user.lastName}
-                </option>
-              ))}
-            </select>
-          </div>
+              {t('Select Speakers')}
+              <svg className="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 4 4 4-4" />
+              </svg>
+          </button>
+
+
+
+          {dropdownOpenSpeaker && (
+            <div id="dropdownBgHover" className="z-10 w-48 bg-white rounded-lg shadow absolute mt-2 dark:bg-gray-700">
+              <ul className="p-3 space-y-1 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownBgHoverButton">
+                {speakers.map((speaker) => (
+                  <li key={speaker.id}>
+                    <div className="flex items-center p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-600">
+                      <input
+                        id={`checkbox-speaker-${speaker.id}`}
+                        type="checkbox"
+                        checked={formData.speakers.some((s) => s.id === speaker.id)}
+                        onChange={() => handleSpeakerToggle(speaker)}
+                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
+                      />
+                      <label htmlFor={`checkbox-speaker-${speaker.id}`} className="w-full ms-2 text-sm font-medium text-gray-900 rounded dark:text-gray-300">
+                        <div>{speaker.user.firstName} {speaker.user.lastName}</div>
+                        <p id="helper-checkbox-text-3" className="text-xs font-normal text-gray-500 dark:text-gray-300">{speaker.expertise}</p>
+                      </label>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
 
           <button
             type="submit"

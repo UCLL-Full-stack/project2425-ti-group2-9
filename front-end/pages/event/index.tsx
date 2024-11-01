@@ -1,6 +1,7 @@
 import React from "react";
 import EventForm from "@components/events/AddEventForm";
 import EventService from "@services/EventService";
+import Header from "@components/headers";
 
 const Events = () => {
     const handleAddEvent = async (eventData: Event) => {
@@ -16,10 +17,13 @@ const Events = () => {
     };
     
     return (
-        <div>
-            <h1>Events</h1>
-            <EventForm />
-        </div>
+        <>
+            <Header/>
+            <div>
+                <EventForm />
+            </div>
+        </>
+        
     );
 }
 export default Events;

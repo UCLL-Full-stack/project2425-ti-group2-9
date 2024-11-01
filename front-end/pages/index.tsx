@@ -1,6 +1,6 @@
 import Head from 'next/head';
 import Image from 'next/image';
-import styles from '@styles/home.module.css';
+import Header from '@components/headers';
 
 const Home: React.FC = () => {
   return (
@@ -11,10 +11,11 @@ const Home: React.FC = () => {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className={styles.main}>
-        <section className={styles.hero}>
-          <h1 className={styles.title}>Welcome to Event Manager</h1>
-          <p className={styles.tagline}>
+      <Header />
+      <main >
+        <section >
+          <h1> Welcome to Event Manager</h1>
+          <p>
             Your gateway to organizing and attending unforgettable events.
           </p>
         </section>
