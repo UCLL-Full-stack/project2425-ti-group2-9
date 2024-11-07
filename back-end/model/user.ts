@@ -1,5 +1,4 @@
-import { Role } from '../types';
-
+import {User as UserPrisma} from '@prisma/client'
 export class User {
     private id?: number;
     private username: string;
@@ -7,7 +6,6 @@ export class User {
     private lastName: string;
     private email: string;
     private password: string;
-    private role: Role;
 
     constructor(user: {
         id?: number;
@@ -16,7 +14,6 @@ export class User {
         lastName: string;
         email: string;
         password: string;
-        role: Role;
     }) {
         this.validate(user);
 
@@ -26,7 +23,6 @@ export class User {
         this.lastName = user.lastName;
         this.email = user.email;
         this.password = user.password;
-        this.role = user.role;
     }
 
     getId(): number | undefined {
@@ -53,35 +49,28 @@ export class User {
         return this.password;
     }
 
-    getRole(): Role {
-        return this.role;
-    }
-
-    validate(user:{ username:string, firstName: string, lastName: string, email:string, password:string, role: Role}){
-        if(!user.username){
+    validate(user: {
+        username: string;
+        firstName: string;
+        lastName: string;
+        email: string;
+        password: string;
+    }) {
+        if (!user.username?.trim()) {
             throw new Error('Username is required');
         }
-        if(!user.firstName){
+        if (!user.firstName?.trim()) {
             throw new Error('First name is required');
         }
-        if(!user.lastName){
+        if (!user.lastName?.trim()) {
             throw new Error('Last name is required');
         }
-        if(!user.email){
+        if (!user.email?.trim()) {
             throw new Error('Email is required');
         }
-        if(!user.password){
+        if (!user.password?.trim()) {
             throw new Error('Password is required');
         }
-        if(!user.role){
-            throw new Error('Role is required');
-        }
-
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(user.email)) {
-            throw new Error('Invalid email');
-        }
-        
     }
 
     equals(user: User): boolean {
@@ -90,8 +79,18 @@ export class User {
             this.firstName === user.getFirstName() &&
             this.lastName === user.getLastName() &&
             this.email === user.getEmail() &&
-            this.password === user.getPassword() &&
-            this.role === user.getRole()
+            this.password === user.getPassword()
         );
+    }
+
+    static from({id, username, firstName, lastName, email, password}: UserPrisma){
+        return new User({
+            id,
+            username,
+            firstName,
+            lastName,
+            email,
+            password,
+        });
     }
 }

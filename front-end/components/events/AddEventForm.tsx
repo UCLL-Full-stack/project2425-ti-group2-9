@@ -123,7 +123,7 @@ const EventForm: React.FC = () => {
 
     fetchOrganizers();
     fetchSpeakers();
-  }, );
+  },[]);
 
   return (
     <div className="max-w-6xl mx-auto p-8 bg-white shadow-lg rounded-lg grid grid-cols-1 md:grid-cols-2 gap-8">

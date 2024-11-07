@@ -1,9 +1,18 @@
 import { Organizer } from "./organizer";
 import { Speaker } from "./speaker";
 import { Participant } from "./participant";
+import { 
+    Participant as ParticipantPrisma,
+    Event as EventPrisma,
+    Speaker as SpeakerPrisma,
+    Organizer as OrganizerPrisma 
+} from "@prisma/client";
+import { ParticipantInput } from "../types";
 
 export class Event {
     private id?: number;
+    private createdAt?: Date;
+    private updatedAt?: Date;
     private name: string;
     private description: string;
     private category: string;
@@ -23,6 +32,8 @@ export class Event {
         organizer: Organizer;
         speakers: Speaker[];
         participants?: Participant[];
+        createdAt?: Date;
+        updatedAt?: Date;
     }){
         this.validate(event);
 
@@ -35,6 +46,8 @@ export class Event {
         this.organizer = event.organizer;
         this.speakers = event.speakers;
         this.participants = event.participants;
+        this.createdAt = event.createdAt;
+        this.updatedAt = event.updatedAt;
     }
 
     getId(): number | undefined{
@@ -73,6 +86,14 @@ export class Event {
         return this.participants;
     }
 
+    getCreatedAt(): Date | undefined{
+        return this.createdAt;
+    }
+    
+    getUpdatedAt(): Date | undefined{
+        return this.updatedAt;
+    }
+
     validate(event: { name: string, description: string, category: string, startDate: Date, endDate: Date, organizer: Organizer, speakers: Speaker[], participants?: Participant[] }): void {
         if(typeof event.name!=='string' || event.name.trim().length === 0){
             throw new Error('Event name is required');
@@ -95,7 +116,37 @@ export class Event {
             this.endDate === event.getEndDate() &&
             this.organizer === event.getOrganizer() &&
             this.speakers === event.getSpeakers() &&
-            this.participants === event.getParticipants()
+            this.participants === event.getParticipants() &&
+            this.createdAt === event.getCreatedAt() &&
+            this.updatedAt === event.getUpdatedAt()
         );
     }
+    static from({
+        id,
+        name,
+        description,
+        category,
+        startDate,
+        endDate,
+        organizer,
+        speakers,
+        participants,
+        createdAt,
+        updatedAt,
+    }: EventPrisma & {organier: OrganizerPrisma; speaker:SpeakerPrisma[]; participants: ParticipantPrisma[]; }){
+        return new Event({
+            id,
+            name,
+            description,
+            category,
+            startDate,
+            endDate,
+            organizer: Organizer.from(organizer),
+            speakers: speakers.map(speaker => Speaker.from(speaker)),
+            participants: participants.map(participant => Participant.from(participant)),
+            createdAt,
+            updatedAt,
+        });
+    }
+    
 }
