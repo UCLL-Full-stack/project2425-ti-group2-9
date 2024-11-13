@@ -5,9 +5,9 @@ import {
     Participant as ParticipantPrisma,
     Event as EventPrisma,
     Speaker as SpeakerPrisma,
-    Organizer as OrganizerPrisma 
+    Organizer as OrganizerPrisma ,
+    User as UserPrisma,
 } from "@prisma/client";
-import { ParticipantInput } from "../types";
 
 export class Event {
     private id?: number;
@@ -133,7 +133,11 @@ export class Event {
         participants,
         createdAt,
         updatedAt,
-    }: EventPrisma & {organier: OrganizerPrisma; speaker:SpeakerPrisma[]; participants: ParticipantPrisma[]; }){
+    }: EventPrisma & {
+        organizer: OrganizerPrisma & { user: UserPrisma }; 
+        speakers: (SpeakerPrisma & { user: UserPrisma })[];
+        participants: (ParticipantPrisma & { user: UserPrisma })[];
+    }) {
         return new Event({
             id,
             name,
@@ -142,7 +146,7 @@ export class Event {
             startDate,
             endDate,
             organizer: Organizer.from(organizer),
-            speakers: speakers.map(speaker => Speaker.from(speaker)),
+            speakers: speakers.map((speaker) => Speaker.from(speaker)),
             participants: participants.map(participant => Participant.from(participant)),
             createdAt,
             updatedAt,

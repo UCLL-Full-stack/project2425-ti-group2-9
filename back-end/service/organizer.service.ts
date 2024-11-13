@@ -1,43 +1,43 @@
 import { Organizer } from '../model/organizer';
 import organizerDb from '../repository/organizer.db';
-import userDb from '../repository/user.db';
+//import userDb from '../repository/user.db';
 import { OrganizerInput } from '../types';
 
-const createOrganizer = ({
-    user: userInput,
-    companyName,
-}: OrganizerInput): Organizer => {
+// const createOrganizer = ({
+//     user: userInput,
+//     companyName,
+// }: OrganizerInput): Organizer => {
     
-    if (!userInput?.id) {
-        throw new Error("User id is required");
-    }
+//     if (!userInput?.id) {
+//         throw new Error("User id is required");
+//     }
 
-    const existingOrganizer = organizerDb.getOrganizerByUserId({ id: userInput.id });
+//     const existingOrganizer = organizerDb.getOrganizerByUserId({ id: userInput.id });
     
-    if (existingOrganizer) {
-        throw new Error(`Organizer with user id ${userInput.id} already exists.`);
-    }
+//     if (existingOrganizer) {
+//         throw new Error(`Organizer with user id ${userInput.id} already exists.`);
+//     }
 
-    const user = userDb.getUserById({ id: userInput.id });
+//     const user = userDb.getUserById({ id: userInput.id });
     
-    if (!user) {
-        throw new Error("User not found");
-    }
+//     if (!user) {
+//         throw new Error("User not found");
+//     }
 
-    const organizer = {
-        user,
-        companyName,
-    };
+//     const organizer = {
+//         user,
+//         companyName,
+//     };
 
-    return organizerDb.createOrganizer(organizer);
+//     return organizerDb.createOrganizer(organizer);
+// };
+
+const getAllOrganizers = async (): Promise <Organizer[]> => {
+    return await organizerDb.getAllOrganizers();
 };
 
-const getAllOrganizers = () => {
-    return organizerDb.getAllOrganizers();
-};
-
-const getOrganizerById = (id: number): Organizer => {
-    const organizer = organizerDb.getOrganizerById({id});
+const getOrganizerById = async(id: number): Promise<Organizer> => {
+    const organizer = await organizerDb.getOrganizerById({id});
     if (!organizer) {
         throw new Error(`Organizer with id ${id} not found.`);
     }
@@ -45,7 +45,7 @@ const getOrganizerById = (id: number): Organizer => {
 };
 
 export default {
-    createOrganizer,
+    //createOrganizer,
     getAllOrganizers,
     getOrganizerById,
 };

@@ -1,10 +1,15 @@
 import { Event } from "../model/event";
+import { Organizer } from "../model/organizer";
+import { Participant } from "../model/participant";
+import { Speaker } from "../model/speaker";
 import eventDb from "../repository/event.db";
 import organizerDb from "../repository/organizer.db";
+import participantDb from "../repository/participant.db";
 import speakerDb from "../repository/speaker.db";
-import { EventInput } from "../types";
+import { EventInput, OrganizerInput, SpeakerInput } from "../types";
 
-const createEvent = ({
+
+const createEvent = async ({
     name,
     description,
     category,
@@ -12,48 +17,54 @@ const createEvent = ({
     endDate,
     organizer: organizerInput,
     speakers: speakerInputs,
-    participants,
-}: EventInput): Event => {
+    participants:participantInputs,
+}: EventInput): Promise<Event> => {
 
     if (!organizerInput?.id) {
         throw new Error("Organizer id is required");
     }
-
-    const organizer = organizerDb.getOrganizerById({ id: organizerInput.id });
+    const organizer = await organizerDb.getOrganizerById({ id: organizerInput.id });
     if (!organizer) {
-        throw new Error("Organizer not found");
+        throw new Error(`Organizer with id ${organizerInput.id} not found`);
     }
 
-    const speakers = speakerInputs.map(speakerInput => {
+    const speakers = [];
+    for (const speakerInput of speakerInputs) {
         if (!speakerInput?.id) {
             throw new Error("Speaker id is required");
         }
-
-        const speaker = speakerDb.getSpeakerById({ id: speakerInput.id });
-        if (!speaker) {
-            throw new Error(`Speaker with id ${speakerInput.id} not found`);
+        const getSpeaker = await speakerDb.getSpeakerById({ id: speakerInput.id });
+        if(getSpeaker) {
+            speakers.push(getSpeaker);
         }
+    }
 
-        return speaker;
-    });
-
-    const event = {
+    const participants = [];
+    if (participantInputs){
+        for (const participantInput of participantInputs) {
+            if (!participantInput?.id) {
+                throw new Error("Participant id is required");
+            }
+            const getParticipant = await participantDb.getParticipantById({ id: participantInput.id });
+            if(getParticipant) {
+                participants.push(getParticipant);
+            }
+        }
+    }
+    const event = new Event({
         name,
         description,
         category,
-        startDate: new Date(startDate),
-        endDate: new Date(endDate),
+        startDate,
+        endDate,
         organizer,
         speakers,
-        participants: [],
-    };
-
-    return eventDb.createEvent(event);
+        participants,
+    })
+    return await eventDb.createEvent(event);
 };
 
-const getAllEvents = () => {
-    return eventDb.getAllEvents();
-};
+const getAllEvents = async(): Promise<Event[]> => eventDb.getAllEvents();
 
 const getEventById = (id: number) => {
     const event = eventDb.getEventById({ id });
@@ -63,16 +74,16 @@ const getEventById = (id: number) => {
     return event;
 };
 
-const getEventByName = (name: string) => {
-    const event = eventDb.getEventByName({ name });
+const getEventByName = async(name: string):Promise<Event> => {
+    const event = await eventDb.getEventByName({ name });
     if (!event) {
         throw new Error(`Event with name ${name} not found`);
     }
     return event;
 };
 
-const getEventsByCategory = (category: string) => {
-    const events = eventDb.getEventsByCategory({category});
+const getEventsByCategory = async(category: string): Promise<Event[]> => {
+    const events = await eventDb.getEventsByCategory({category});
     if (!events || events.length === 0) {
         throw new Error(`No events found in category ${category}`);
     }

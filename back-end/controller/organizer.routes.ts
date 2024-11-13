@@ -85,19 +85,19 @@ const organizerRouter = express.Router();
  *                 errorMessage:
  *                   type: string
  */
-organizerRouter.post('/', (req: Request, res: Response) => {
-    try {
-        const organizer = <OrganizerInput>req.body;
-        const result = organizerService.createOrganizer(organizer);
-        res.status(200).json(result);
-    } catch (error: unknown) {
-        let errorMessage = "Unknown error";
-        if (error instanceof Error) {
-            errorMessage = error.message;
-        }
-        res.status(400).json({ status: 'error', errorMessage });
-    }
-});
+// organizerRouter.post('/', (req: Request, res: Response) => {
+//     try {
+//         const organizer = <OrganizerInput>req.body;
+//         const result = organizerService.createOrganizer(organizer);
+//         res.status(200).json(result);
+//     } catch (error: unknown) {
+//         let errorMessage = "Unknown error";
+//         if (error instanceof Error) {
+//             errorMessage = error.message;
+//         }
+//         res.status(400).json({ status: 'error', errorMessage });
+//     }
+// });
 
 /**
  * @swagger
@@ -126,9 +126,9 @@ organizerRouter.post('/', (req: Request, res: Response) => {
  *                 errorMessage:
  *                   type: string
  */
-organizerRouter.get('/', (req: Request, res: Response) => {
+organizerRouter.get('/', async (req: Request, res: Response) => {
     try {
-        const organizers = organizerService.getAllOrganizers();
+        const organizers = await organizerService.getAllOrganizers();
         res.status(200).json(organizers);
     } catch (error: unknown) {
         let errorMessage = "Unknown error";
@@ -172,10 +172,10 @@ organizerRouter.get('/', (req: Request, res: Response) => {
  *                 errorMessage:
  *                   type: string
  */
-organizerRouter.get('/:id', (req: Request, res: Response) => {
+organizerRouter.get('/:id', async(req: Request, res: Response) => {
     try {
         const id = parseInt(req.params.id, 10);
-        const organizer = organizerService.getOrganizerById(id);
+        const organizer = await organizerService.getOrganizerById(id);
         res.status(200).json(organizer);
     } catch (error: unknown) {
         let errorMessage = "Unknown error";

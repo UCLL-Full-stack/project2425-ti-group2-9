@@ -1,54 +1,66 @@
 import { Organizer } from "../model/organizer";
-import { User } from "../model/user";
+import database from "./database";
 
-// Dummy User instances
-const user1 = new User({username: "john123", password:'password',  firstName:'John',lastName:'Doe', email: "john@example.com", role: 'organizer' });
-const user2 = new User({username: "jane123", password: "password", firstName:'Jane',lastName:'Doe', email: "jane@example.com", role: 'organizer'});
-const user3 = new User({username: "senne123",password:"password" , firstName:'Senne',lastName:'Geerts', email: "senne@example.com", role: 'organizer'});
-
-// Initialize organizers array with dummy data
-const organizers: Organizer[] = [
-    new Organizer({ id:1, user: user1, companyName: "John's Eventing" }),
-    new Organizer({ id:2, user: user2, companyName: "Jane's Business" }),
-    new Organizer({ id:3, user: user3, companyName: "Senne's Club" })
-];
-
-const createOrganizer = ({
-    user,
-    companyName,
+// const createOrganizer = ({
+//     user,
+//     companyName,
     
-}: {
-    user: User;
-    companyName: string;
-}): Organizer => {
-    const organizer = new Organizer({
-        user,
-        companyName,
-    });
+// }: {
+//     user: User;
+//     companyName: string;
+// }): Organizer => {
+//     const organizer = new Organizer({
+//         user,
+//         companyName,
+//     });
     
-    organizers.push(organizer);
-    return organizer;
-};
+//     organizers.push(organizer);
+//     return organizer;
+// };
 
-const getAllOrganizers = (): Organizer[] => {
-    return organizers;
-};
-
-const getOrganizerById = ({id}:{id: number}): Organizer | undefined => {
-    return organizers.find((organizer) => organizer.getId() === id);
-};
-
-const getOrganizerByUserId = ({id}:{id: number}): Organizer | undefined => {
+const getAllOrganizers = async (): Promise<Organizer[]> => {
     try {
-        return organizers.find(organizer => organizer.getUser().getId() === id);
+        const organizerPrisma = await database.organizer.findMany({
+            include: {
+                user: true
+            }
+        });
+        return organizerPrisma.map((organizerPrisma)=>Organizer.from(organizerPrisma));
     } catch (error) {
+        console.error(error);
         throw new Error('Database error. See server log for details.');
     }
 };
 
+const getOrganizerById = async ({id}:{id: number}): Promise<Organizer | null> => {
+    try {
+        const organizerPrisma = await database.organizer.findUnique({
+            where: {id},
+            include: {user: true}
+        });
+        if(organizerPrisma){
+            return Organizer.from(organizerPrisma);
+        }else{
+            return null;
+        }
+    } catch (error) {
+        console.error(error);
+        throw new Error('Database error. See server log for details.');
+    }
+    
+};
+
+// const getOrganizerByUserId = ({id}:{id: number}): Organizer | undefined => {
+//     try {
+//         return organizers.find(organizer => organizer.getUser().getId() === id);
+//     } catch (error) {
+//         throw new Error('Database error. See server log for details.');
+//     }
+// };
+
 export default {
-    createOrganizer,
+    //createOrganizer,
     getAllOrganizers,
     getOrganizerById,
-    getOrganizerByUserId
+    //getOrganizerByUserId
 };

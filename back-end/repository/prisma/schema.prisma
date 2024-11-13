@@ -51,7 +51,7 @@ model Speaker {
     updatedAt DateTime @updatedAt
     userId    Int      @unique
     user      User     @relation(fields: [userId], references: [id])
-    experise  String
+    expertise String
     events    Event[]
 }
 
@@ -63,5 +63,5 @@ model Participant {
     userId      Int      @unique
     user        User     @relation(fields: [userId], references: [id])
 
-    Event Event[]
+    events Event[]
 }

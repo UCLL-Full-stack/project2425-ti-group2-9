@@ -5,7 +5,7 @@ import * as bodyParser from 'body-parser';
 import swaggerJSDoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 import { participantRouter } from './controller/participant.routes';
-import { userRouter } from './controller/user.routes';
+//import { userRouter } from './controller/user.routes';
 import { organizerRouter } from './controller/organizer.routes';
 import { speakerRouter } from './controller/speaker.routes';
 import { eventRouter } from './controller/event.routes';
@@ -18,7 +18,7 @@ app.use(cors());
 app.use(bodyParser.json());
 
 app.use('/participants', participantRouter);
-app.use('/users', userRouter);
+//app.use('/users', userRouter);
 app.use('/organizers', organizerRouter)
 app.use('/speakers', speakerRouter);
 app.use('/events', eventRouter);

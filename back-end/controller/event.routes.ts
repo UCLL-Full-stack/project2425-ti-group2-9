@@ -103,10 +103,10 @@ const eventRouter = express.Router();
  *                 errorMessage:
  *                   type: string
  */
-eventRouter.post('/', (req: Request, res: Response) => {
+eventRouter.post('/', async (req: Request, res: Response) => {
     try {
         const eventInput = <EventInput>req.body;
-        const result = eventService.createEvent(eventInput);
+        const result = await eventService.createEvent(eventInput);
         res.status(200).json(result);
     } catch (error: unknown) {
         let errorMessage = "Unknown error";

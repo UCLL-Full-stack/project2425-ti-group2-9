@@ -91,19 +91,19 @@ const speakerRouter = express.Router();
  *                 errorMessage:
  *                   type: string
  */
-speakerRouter.post('/', (req: Request, res: Response) => {
-    try {
-        const speaker = <SpeakerInput>req.body;
-        const result = speakerService.createSpeaker(speaker);
-        res.status(200).json(result);
-    } catch (error: unknown) {
-        let errorMessage = "Unknown error";
-        if (error instanceof Error) {
-            errorMessage = error.message;
-        }
-        res.status(400).json({ status: 'error', errorMessage });
-    }
-});
+// speakerRouter.post('/', (req: Request, res: Response) => {
+//     try {
+//         const speaker = <SpeakerInput>req.body;
+//         const result = speakerService.createSpeaker(speaker);
+//         res.status(200).json(result);
+//     } catch (error: unknown) {
+//         let errorMessage = "Unknown error";
+//         if (error instanceof Error) {
+//             errorMessage = error.message;
+//         }
+//         res.status(400).json({ status: 'error', errorMessage });
+//     }
+// });
 
 /**
  * @swagger
@@ -132,9 +132,9 @@ speakerRouter.post('/', (req: Request, res: Response) => {
  *                 errorMessage:
  *                   type: string
  */
-speakerRouter.get('/', (req: Request, res: Response) => {
+speakerRouter.get('/', async(req: Request, res: Response) => {
     try {
-        const speakers = speakerService.getAllSpeakers();
+        const speakers = await speakerService.getAllSpeakers();
         res.status(200).json(speakers);
     } catch (error: unknown) {
         let errorMessage = "Unknown error";

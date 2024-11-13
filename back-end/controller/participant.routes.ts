@@ -94,19 +94,19 @@ const participantRouter = express.Router();
  *                 errorMessage:
  *                   type: string
  */
-participantRouter.post('/', (req: Request, res: Response) => {
-    try {
-        const participant = <ParticipantInput>req.body;
-        const result = participantService.createParticipant(participant);
-        res.status(200).json(result);
-    } catch (error: unknown) {
-        let errorMessage = "Unknown error";
-        if (error instanceof Error) {
-            errorMessage = error.message;
-        }
-        res.status(400).json({ status: 'error', errorMessage });
-    }
-});
+// participantRouter.post('/', (req: Request, res: Response) => {
+//     try {
+//         const participant = <ParticipantInput>req.body;
+//         const result = participantService.createParticipant(participant);
+//         res.status(200).json(result);
+//     } catch (error: unknown) {
+//         let errorMessage = "Unknown error";
+//         if (error instanceof Error) {
+//             errorMessage = error.message;
+//         }
+//         res.status(400).json({ status: 'error', errorMessage });
+//     }
+// });
 
 /**
  * @swagger
@@ -135,9 +135,9 @@ participantRouter.post('/', (req: Request, res: Response) => {
  *                 errorMessage:
  *                   type: string
  */
-participantRouter.get('/', (req: Request, res: Response) => {
+participantRouter.get('/', async(req: Request, res: Response) => {
     try {
-        const participants = participantService.getAllParticipants();
+        const participants = await participantService.getAllParticipants();
         res.status(200).json(participants);
     } catch (error: unknown) {
         let errorMessage = "Unknown error";
