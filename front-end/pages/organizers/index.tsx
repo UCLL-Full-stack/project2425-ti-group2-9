@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { use, useEffect, useState } from 'react';
 import Head from 'next/head';
 import { Organizer } from '@types';
 import OrganizerService from '@services/OrganizerService';
@@ -6,23 +6,27 @@ import OrganizerOverviewTable from '@components/organizers/OrganizerOverviewTabl
 import EventOverviewTable from '@components/events/EventOverviewTable';
 import Header from '@components/headers';
 import useInterval from "use-interval";
+import useSWR from 'swr';
 
 const organizers: React.FC = () => {
-    const [organizers, setOrganizers] = useState<Array<Organizer>>();
+    // const [organizers, setOrganizers] = useState<Array<Organizer>>();
     const [selectedOrganizer, setSelectedOrganizer] = useState<Organizer | null>(null);
-    const [error, setError] = useState<string>();
+    
 
     const getOrganizers = async () => {
-        setError("");
+       
         const response = await OrganizerService.getAllOrganizers();
-        const responseOrganizers = await response.json();
+        const organizers = await response.json();
 
-        if(response.status !== 200) {
-            setError(responseOrganizers.errorMessage);
-            return;
+        return {
+            organizers
         }
-        setOrganizers(responseOrganizers);
-    }
+    };
+
+    const {data, isLoading, error} = useSWR(
+        "organizers",
+        getOrganizers
+    );
 
     useInterval(() => {
         getOrganizers();
@@ -41,10 +45,11 @@ const organizers: React.FC = () => {
             <main className="d-flex flex-column justify-content-center align-items-center">
                 <h2>Organizers</h2>
                 {error && <div className="test-red-800">{error}</div>}
+                {isLoading && <p>Is loading ...</p>}
                 <section>
-                    {organizers &&(
+                    {data &&(
                         <OrganizerOverviewTable 
-                            organizers={organizers}
+                            organizers={data.organizers}
                             selectOrganizer={handleOrganizerSelection}
                         />
                     )}
