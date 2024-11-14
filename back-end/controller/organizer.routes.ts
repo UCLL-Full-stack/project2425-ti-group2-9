@@ -182,7 +182,7 @@ organizerRouter.get('/:id', async(req: Request, res: Response) => {
         if (error instanceof Error) {
             errorMessage = error.message;
         }
-        res.status(404).json({ status: 'error', errorMessage });
+        res.status(400).json({ status: 'error', errorMessage });
     }
 });
 
