@@ -24,7 +24,25 @@ const EventForm: React.FC = () => {
   const [speakers, setSpeakers] = useState<Speaker[]>([]);
   const [selectedOrganizer, setSelectedOrganizer] = useState<number | null>(null);
 
-  const clearMessages = () => setStatusMessages([]);
+  const [nameError, setNameError] = useState('');
+  const [descriptionError, setDescriptionError] = useState('');
+  const [categoryError, setCategoryError] = useState('');
+  const [startDateError, setStartDateError] = useState('');
+  const [endDateError, setEndDateError] = useState('');
+  const [organizerError, setOrganizerError] = useState('');
+  const [speakersError, setSpeakersError] = useState('');
+
+  const clearMessages = () => {
+    setNameError('');
+    setDescriptionError('');
+    setCategoryError('');
+    setStartDateError('');
+    setEndDateError('');
+    setOrganizerError('');
+    setSpeakersError('');
+    setStatusMessages([]);
+    
+  }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -50,6 +68,47 @@ const EventForm: React.FC = () => {
 
   const toggleDropdownOrganizer = () => setDropdownOpenOrganizer((prev) => !prev);
   const toggleDropdownSpeaker = () => setDropdownOpenSpeaker((prev) => !prev);
+
+  const validate = (): boolean => {
+    let isValid = true;
+
+    if (!formData.name.trim()) {
+      setNameError('Event name is required');
+      isValid = false;
+    }
+
+    if (!formData.description.trim()) {
+      setDescriptionError('Event description is required');
+      isValid = false;
+    }
+
+    if (!formData.category.trim()) {
+      setCategoryError('Event category is required');
+      isValid = false;
+    }
+
+    if (!formData.startDate || formData.startDate < new Date()) {
+      setStartDateError('Start date must be a valid date and in the future');
+      isValid = false;
+    }
+
+    if (!formData.endDate || formData.endDate <= formData.startDate) {
+      setEndDateError('End date must be a valid date and after the start date');
+      isValid = false;
+    }
+
+    if (!formData.organizer.id) {
+      setOrganizerError('Organizer is required');
+      isValid = false;
+    }
+
+    if (!formData.speakers.length) {
+      setSpeakersError('At least one speaker is required');
+      isValid = false;
+    }
+
+    return isValid;
+  };
 
   const handleSpeakerToggle = (speaker: Speaker) => {
     setFormData((prevData) => {
@@ -77,6 +136,8 @@ const EventForm: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     clearMessages();
+    
+    sessionStorage.setItem('event', formData.name);
 
     try {
       const response = await EventService.createEvent(formData);
@@ -161,9 +222,10 @@ const EventForm: React.FC = () => {
               name="name"
               value={formData.name}
               onChange={handleChange}
-              required
+              
               className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
             />
+            {nameError && <div className="text-red-800">{nameError}</div>}
           </div>
 
           <div>
@@ -172,9 +234,10 @@ const EventForm: React.FC = () => {
               name="description"
               value={formData.description}
               onChange={handleChange}
-              required
+              
               className="mt-8 block w-full border-gray-300 rounded-md shadow-sm"
             />
+            {descriptionError && <div className="text-red-800">{descriptionError}</div>}
           </div>
 
           <div>
@@ -184,9 +247,10 @@ const EventForm: React.FC = () => {
               name="category"
               value={formData.category}
               onChange={handleChange}
-              required
+              
               className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
             />
+            {categoryError && <div className="text-red-800">{categoryError}</div>}
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -196,9 +260,10 @@ const EventForm: React.FC = () => {
                 type="datetime-local"
                 name="startDate"
                 onChange={(e) => setFormData({ ...formData, startDate: new Date(e.target.value) })}
-                required
+                
                 className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
               />
+              {startDateError && <div className="text-red-800">{startDateError}</div>}
             </div>
             <div>
               <label className="block text-gray-700">End Date</label>
@@ -206,9 +271,10 @@ const EventForm: React.FC = () => {
                 type="datetime-local"
                 name="endDate"
                 onChange={(e) => setFormData({ ...formData, endDate: new Date(e.target.value) })}
-                required
+                
                 className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
               />
+              {endDateError && <div className="text-red-800">{endDateError}</div>}
             </div>
           </div>
 
@@ -216,7 +282,7 @@ const EventForm: React.FC = () => {
             <label className="block text-gray-700">Organizer</label>
             <select
               onChange={handleOrganizerChange}
-              required
+              
               className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
             >
               <option value="">{'Select the organizer'}</option>
@@ -226,6 +292,7 @@ const EventForm: React.FC = () => {
                 </option>
               ))}
             </select>
+            {organizerError && <div className="text-red-800">{organizerError}</div>}
           </div>
 
           <div className="relative">
@@ -266,6 +333,7 @@ const EventForm: React.FC = () => {
               </ul>
             </div>
           )}
+          {speakersError && <div className="text-red-800">{speakersError}</div>}
         </div>
 
           <button

@@ -1,9 +1,18 @@
 import Link from 'next/link';
+import { useState, useEffect } from 'react';
 
 const Header: React.FC = () => {
-  return (
-    
+  const [loggedInUser, setLoggedInUser] = useState<string>(null);
 
+  useEffect(() => {
+    setLoggedInUser(sessionStorage.getItem('loggedInUser'));
+  },[]);
+
+  const handleClick = () => {
+    sessionStorage.removeItem('loggedInUser');
+    setLoggedInUser(null);
+  }
+  return (
 <nav className="bg-white border-gray-200 dark:bg-gray-900">
   <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
     <a href="/" className="flex items-center space-x-3 rtl:space-x-reverse">
@@ -26,6 +35,14 @@ const Header: React.FC = () => {
         <li>
           <a href="/event" className="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">Registering An Event</a>
         </li>
+        {!loggedInUser &&
+        <li>
+          <a href="/login" className="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">Login</a>
+        </li>}
+        {loggedInUser &&(
+        <li>
+          <a href="/login" onClick={handleClick} className="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">Logout</a>
+        </li>)}
       </ul>
     </div>
   </div>
