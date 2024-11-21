@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from "react";
 
 const Header: React.FC = () => {
   const [loggedInUser, setLoggedInUser] = useState<string>(null);
