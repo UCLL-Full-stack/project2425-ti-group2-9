@@ -43,6 +43,13 @@ type EventInput = {
     participants?: ParticipantInput[];
 };
 
+type AuthenticationResponse = {
+    token: string;
+    username: string;
+    fullname: string;
+    role: string;
+};
+
 
 export { 
     Role,
@@ -50,5 +57,6 @@ export {
     OrganizerInput,
     SpeakerInput,
     ParticipantInput,
-    EventInput 
+    EventInput,
+    AuthenticationResponse
 };

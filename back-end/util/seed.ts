@@ -9,42 +9,55 @@ const main = async () => {
     await prisma.organizer.deleteMany();
     await prisma.user.deleteMany();
 
-    // Dummy User instances for speakers
-    const user1 = await prisma.user.create({
+    const admin = await prisma.user.create({
         data: {
-            username: "alice123",
-            password: await bcrypt.hash("password1", 10),
-            firstName: "Alice",
-            lastName: "Smith",
-            email: "alice@example.com",
+            username: 'admin',
+            password: await bcrypt.hash('admin123', 12),
+            firstName: 'admin',
+            lastName: 'admin',
+            email: 'administration@ucll.be',
+            role: 'admin',
         },
     });
 
-    const user2 = await prisma.user.create({
+    // Dummy User instances for speaker
+    const fransSpeaker = await prisma.user.create({
         data: {
-            username: "bob456",
-            password: await bcrypt.hash("password2", 10),
-            firstName: "Bob",
-            lastName: "Jones",
-            email: "bob@example.com",
+            username: "frans",
+            password: await bcrypt.hash("frans123", 12),
+            firstName: "Frans",
+            lastName: "Spreker",
+            email: "frans@example.com",
+            role: "speaker",
         },
     });
 
-    const user3 = await prisma.user.create({
+    //dummy User for organizer
+    const janOrganizer = await prisma.user.create({
         data: {
-            username: "charlie789",
-            password: await bcrypt.hash("password3", 10),
-            firstName: "Charlie",
-            lastName: "Brown",
-            email: "charlie@example.com",
+            username: "jan",
+            password: await bcrypt.hash("jan123", 12),
+            firstName: "Jan",
+            lastName: "Organisator",
+            email: "jan@example.com",
+            role: "organizer",
+        },
+    });
+
+    const fritsParticipant = await prisma.user.create({
+        data: {
+            username: "frits",
+            password: await bcrypt.hash("frits123", 12),
+            firstName: "Frits",
+            lastName: "Bezoeker",
+            email: "frits@example.com",
+            role: "participant",
         },
     });
 
     // Seed speakers with dummy data
     const speakers = [
-        { userId: user1.id, expertise: "AI and Machine Learning" },
-        { userId: user2.id, expertise: "Cybersecurity" },
-        { userId: user3.id, expertise: "Cloud Computing" },
+        { userId: fransSpeaker.id, expertise: "AI and Machine Learning" },
     ];
 
     for (const speakerData of speakers) {
@@ -53,31 +66,9 @@ const main = async () => {
         });
     }
 
-    // Dummy User instances for organizers
-    const organizerUser1 = await prisma.user.create({
-        data: {
-            username: "organizer1",
-            password: await bcrypt.hash("organizer1pass", 10),
-            firstName: "Olivia",
-            lastName: "Williams",
-            email: "olivia@example.com",
-        },
-    });
-
-    const organizerUser2 = await prisma.user.create({
-        data: {
-            username: "organizer2",
-            password: await bcrypt.hash("organizer2pass", 10),
-            firstName: "Liam",
-            lastName: "Johnson",
-            email: "liam@example.com",
-        },
-    });
-
     // Seed organizers with dummy data
     const organizers = [
-        { userId: organizerUser1.id, companyName: "Tech Innovations Ltd." },
-        { userId: organizerUser2.id, companyName: "Cyber Solutions Inc." },
+        { userId: janOrganizer.id, companyName: "Tech Innovations Ltd." },
     ];
 
     for (const organizerData of organizers) {
