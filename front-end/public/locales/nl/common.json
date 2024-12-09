@@ -1,0 +1,15 @@
+{
+    "login": {
+        "title": "Inloggen",
+        "button": "Inloggen",
+        "label": {
+            "username": "Gebruikersnaam",
+            "password": "Wachtwoord"
+        },
+        "success": "Inloggen succesvol. Doorverwijzen naar de startpagina...",
+        "validate": {
+            "name": "Naam is verplicht",
+            "password": "Wachtwoord is verplicht"
+        }
+    }
+}

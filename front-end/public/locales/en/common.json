@@ -1,0 +1,15 @@
+{
+    "login": {
+        "title": "Login",
+        "button": "Login",
+        "label": {
+            "username": "Username",
+            "password": "Password"
+        },
+        "success": "Login successful. Redirecting to homepage...",
+        "validate": {
+            "name": "Name is required",
+            "password": "Password is required"
+        }
+    }
+}
