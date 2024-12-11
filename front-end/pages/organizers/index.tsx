@@ -10,20 +10,31 @@ import useSWR from 'swr';
 
 const organizers: React.FC = () => {
     // const [organizers, setOrganizers] = useState<Array<Organizer>>();
+    const [error, setError] = useState<string>();
     const [selectedOrganizer, setSelectedOrganizer] = useState<Organizer | null>(null);
     
 
     const getOrganizers = async () => {
-       
+        setError("");
         const response = await OrganizerService.getAllOrganizers();
-        const organizers = await response.json();
-
-        return {
-            organizers
+        if(!response.ok){
+            if(response.status === 401){
+                setError("You need to be logged in to access this page");
+            }else{
+                setError(response.statusText);
+            }
+        }else{
+            const organizers = await response.json();
+            return {
+                organizers
+            }
         }
+        
+
+        
     };
 
-    const {data, isLoading, error} = useSWR(
+    const {data, isLoading} = useSWR(
         "organizers",
         getOrganizers
     );
