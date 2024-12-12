@@ -65,9 +65,9 @@
  *               id:
  *                 type: number
  */
-import express, { Request, Response } from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 import eventService from '../service/event.service';
-import { EventInput } from '../types';
+import { EventInput, Role } from '../types';
 
 const eventRouter = express.Router();
 
@@ -75,6 +75,8 @@ const eventRouter = express.Router();
  * @swagger
  * /events:
  *   post:
+ *     security:
+ *       - bearerAuth: []
  *     summary: Create a new event
  *     description: Create a new event by providing event details.
  *     requestBody:
@@ -103,17 +105,16 @@ const eventRouter = express.Router();
  *                 errorMessage:
  *                   type: string
  */
-eventRouter.post('/', async (req: Request, res: Response) => {
+eventRouter.post('/', async (req: Request, res: Response, next: NextFunction) => {
     try {
+        const request = req as Request & { auth: { username: string; role: Role } };
+        
+        const { username, role } = request.auth;
         const eventInput = <EventInput>req.body;
-        const result = await eventService.createEvent(eventInput);
+        const result = await eventService.createEvent(eventInput, {username, role});
         res.status(200).json(result);
-    } catch (error: unknown) {
-        let errorMessage = "Unknown error";
-        if (error instanceof Error) {
-            errorMessage = error.message;
-        }
-        res.status(400).json({ status: 'error', errorMessage });
+    } catch (error) {
+        next(error);
     }
 });
 
@@ -121,6 +122,8 @@ eventRouter.post('/', async (req: Request, res: Response) => {
  * @swagger
  * /events:
  *   get:
+ *     security:
+ *       - bearerAuth: []
  *     summary: Get all events
  *     description: Retrieve a list of all events.
  *     responses:
@@ -161,6 +164,8 @@ eventRouter.get('/', (req: Request, res: Response) => {
  * @swagger
  * /events/{id}:
  *   get:
+ *     security:
+ *       - bearerAuth: []
  *     summary: Get event by ID
  *     description: Retrieve a specific event by its ID.
  *     parameters:

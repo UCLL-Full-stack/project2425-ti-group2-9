@@ -1,12 +1,10 @@
+import { UnauthorizedError } from "express-jwt";
 import { Event } from "../model/event";
-import { Organizer } from "../model/organizer";
-import { Participant } from "../model/participant";
-import { Speaker } from "../model/speaker";
 import eventDb from "../repository/event.db";
 import organizerDb from "../repository/organizer.db";
 import participantDb from "../repository/participant.db";
 import speakerDb from "../repository/speaker.db";
-import { EventInput, OrganizerInput, SpeakerInput } from "../types";
+import {Role,  EventInput, OrganizerInput, SpeakerInput } from "../types";
 
 
 const createEvent = async ({
@@ -18,15 +16,28 @@ const createEvent = async ({
     organizer: organizerInput,
     speakers: speakerInputs,
     participants:participantInputs,
-}: EventInput): Promise<Event> => {
+}: EventInput, user:{ username: string; role: Role }): Promise<Event> => {
+    if(user.role !== 'admin' && user.role !== 'organizer'){
+        throw new UnauthorizedError('credentials_required', {
+            message: 'You are not authorized to access this resource.',
+        }); 
+    }
+    //let organizer: organizerInput;
+    if(user.role === 'admin'){
 
-    if (!organizerInput?.id) {
-        throw new Error("Organizer id is required");
+        if (!organizerInput?.id) {
+            throw new Error("Organizer id is required");
+        }
+        const organizer = await organizerDb.getOrganizerById({ id: organizerInput.id });
+        if (!organizer) {
+            throw new Error(`Organizer with id ${organizerInput.id} not found`);
+        }
     }
-    const organizer = await organizerDb.getOrganizerById({ id: organizerInput.id });
+    const organizer = await organizerDb.getOrganizerByUsername({ username: user.username });
     if (!organizer) {
-        throw new Error(`Organizer with id ${organizerInput.id} not found`);
+        throw new Error(`Organizer with username ${user.username} not found`);
     }
+    
 
     const speakers = [];
     for (const speakerInput of speakerInputs) {

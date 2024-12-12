@@ -37,7 +37,6 @@ const getOrganizerById = async({id, username, role}
 };
 
 export default {
-    //createOrganizer,
     getAllOrganizers,
     getOrganizerById,
 };
