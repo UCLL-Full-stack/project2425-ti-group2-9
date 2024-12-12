@@ -10,7 +10,7 @@ const getAllOrganizers = async ({
         username: string;
         role:Role
     }):Promise <Organizer[]> => {
-    if(role === 'admin') {
+    if(role === 'admin'|| role === 'organizer') {
         return await organizerDb.getAllOrganizers();
     } else{
         throw new UnauthorizedError('credentials_required', {
@@ -22,7 +22,7 @@ const getAllOrganizers = async ({
 const getOrganizerById = async({id, username, role}
     :{id: number; username: string; role: Role})
     :Promise<Organizer> => {
-    if(role === 'admin'){
+    if(role === 'admin' || role === 'organizer'){
         const organizer = await organizerDb.getOrganizerById({id});
         if (!organizer) {
             throw new Error(`Organizer with id ${id} not found.`);

@@ -22,22 +22,26 @@ const createEvent = async ({
             message: 'You are not authorized to access this resource.',
         }); 
     }
-    //let organizer: organizerInput;
-    if(user.role === 'admin'){
-
+    let organizer;
+    if(user.role === 'organizer'){
+        organizer = await organizerDb.getOrganizerByUsername({ username: user.username });
+        if (!organizer) {
+            throw new Error(`Organizer with username ${user.username} not found`);
+        }   
+    }
+    else if (user.role === 'admin') {
         if (!organizerInput?.id) {
             throw new Error("Organizer id is required");
         }
-        const organizer = await organizerDb.getOrganizerById({ id: organizerInput.id });
+        organizer = await organizerDb.getOrganizerById({ id: organizerInput.id });
         if (!organizer) {
             throw new Error(`Organizer with id ${organizerInput.id} not found`);
         }
     }
-    const organizer = await organizerDb.getOrganizerByUsername({ username: user.username });
-    if (!organizer) {
-        throw new Error(`Organizer with username ${user.username} not found`);
-    }
     
+    if (!organizer) {
+        throw new Error("Organizer could not be determined");
+    }
 
     const speakers = [];
     for (const speakerInput of speakerInputs) {
@@ -45,7 +49,10 @@ const createEvent = async ({
             throw new Error("Speaker id is required");
         }
         const getSpeaker = await speakerDb.getSpeakerById({ id: speakerInput.id });
-        if(getSpeaker) {
+
+        if(!getSpeaker) {
+            throw new Error(`Speaker with id ${speakerInput.id} not found`);
+        } else if(getSpeaker) {
             speakers.push(getSpeaker);
         }
     }
@@ -57,7 +64,10 @@ const createEvent = async ({
                 throw new Error("Participant id is required");
             }
             const getParticipant = await participantDb.getParticipantById({ id: participantInput.id });
-            if(getParticipant) {
+            if(!getParticipant) {
+                throw new Error(`Participant with id ${participantInput.id} not found`);
+            }
+            else if(getParticipant) {
                 participants.push(getParticipant);
             }
         }
