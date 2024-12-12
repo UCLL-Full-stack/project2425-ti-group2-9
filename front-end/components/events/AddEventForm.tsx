@@ -1,12 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, {useState } from 'react';
 import classNames from 'classnames';
 import { useTranslation } from 'next-i18next';
 import { StatusMessage, Event, Organizer, Speaker } from '@types'; // Adjust import path as needed
 import EventService from '@services/EventService'; // Adjust import path as needed
 import OrganizerService from '@services/OrganizerService'; // Adjust import path as needed
 import SpeakerService from '@services/SpeakerService'; // Adjust import path as needed
+import useSWR from 'swr';
+import useInterval from "use-interval";
 
-const EventForm: React.FC = () => {
+const EventForm = () => {
   const { t } = useTranslation();
 
   const [formData, setFormData] = useState<Event>({
@@ -19,30 +21,12 @@ const EventForm: React.FC = () => {
     speakers: [],
   });
 
-  const [statusMessages, setStatusMessages] = useState<StatusMessage[]>([]);
+  const [errors, setErrors] = useState<string[]>([]);
+  const [status, setStatus] = useState<string>('');
   const [organizers, setOrganizers] = useState<Organizer[]>([]);
   const [speakers, setSpeakers] = useState<Speaker[]>([]);
   const [selectedOrganizer, setSelectedOrganizer] = useState<number | null>(null);
 
-  const [nameError, setNameError] = useState('');
-  const [descriptionError, setDescriptionError] = useState('');
-  const [categoryError, setCategoryError] = useState('');
-  const [startDateError, setStartDateError] = useState('');
-  const [endDateError, setEndDateError] = useState('');
-  const [organizerError, setOrganizerError] = useState('');
-  const [speakersError, setSpeakersError] = useState('');
-
-  const clearMessages = () => {
-    setNameError('');
-    setDescriptionError('');
-    setCategoryError('');
-    setStartDateError('');
-    setEndDateError('');
-    setOrganizerError('');
-    setSpeakersError('');
-    setStatusMessages([]);
-    
-  }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -71,39 +55,40 @@ const EventForm: React.FC = () => {
 
   const validate = (): boolean => {
     let isValid = true;
+    setErrors([]);
 
     if (!formData.name.trim()) {
-      setNameError('Event name is required');
+      setErrors((errors) => [...errors, 'Name is required']);
       isValid = false;
     }
 
     if (!formData.description.trim()) {
-      setDescriptionError('Event description is required');
+      setErrors((errors) => [...errors, 'Description is required']);
       isValid = false;
     }
 
     if (!formData.category.trim()) {
-      setCategoryError('Event category is required');
+      setErrors((errors) => [...errors, 'Category is required']);
       isValid = false;
     }
 
     if (!formData.startDate || formData.startDate < new Date()) {
-      setStartDateError('Start date must be a valid date and in the future');
+      setErrors((errors) => [...errors, 'StartDate must be in the future and is required']);
       isValid = false;
     }
 
     if (!formData.endDate || formData.endDate <= formData.startDate) {
-      setEndDateError('End date must be a valid date and after the start date');
+      setErrors((errors) => [...errors, 'End Date must be after Start Date and is required']);
       isValid = false;
     }
 
     if (!formData.organizer.id) {
-      setOrganizerError('Organizer is required');
+      setErrors((errors) => [...errors, 'Organizer is required']);
       isValid = false;
     }
 
     if (!formData.speakers.length) {
-      setSpeakersError('At least one speaker is required');
+      setErrors((errors) => [...errors, 'At least one speaker is required']);
       isValid = false;
     }
 
@@ -135,56 +120,35 @@ const EventForm: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    clearMessages();
+    if(!validate()){
+      return;
+    }
     
     sessionStorage.setItem('event', formData.name);
-
-    try {
       const response = await EventService.createEvent(formData);
-      if (response.ok) {
-        setStatusMessages([{ message: 'Your event is successfully registered', type: 'success' }]);
+      const data = await response.json();
+      if (!response.ok) {
+        setErrors((errors) => [...errors, data.message]);
       } else {
-        const errorData = await response.json();
-        setStatusMessages([{ message: errorData.errorMessage || 'general.error', type: 'error' }]);
+        setStatus('Schedule created successfully.');
       }
-    } catch (error) {
-      setStatusMessages([{ message: 'general.error', type: 'error' }]);
-    }
   };
 
-  const fetchOrganizers = async () => {
-    try {
-      const response = await OrganizerService.getAllOrganizers();
-      if (response.ok) {
-        const data = await response.json();
-        setOrganizers(data);
-      } else {
-        setStatusMessages([{ message: t('general.error'), type: 'error' }]);
-      }
-    } catch (error) {
-      setStatusMessages([{ message: t('general.error'), type: 'error' }]);
-    }
+  const getOrganizersAndSpeakers = async () => {
+    const responses = await Promise.all([
+      OrganizerService.getAllOrganizers(),
+      SpeakerService.getAllSpeakers(),
+    ]);
+    const [organizerResponse, speakerResponse] = responses;
+
+    if (organizerResponse.ok && speakerResponse.ok) {
+      const organizer = await organizerResponse.json();
+      const speakers = await speakerResponse.json();
+      return {organizer, speakers}
   };
-
-  const fetchSpeakers = async () => {
-    try {
-      const response = await SpeakerService.getAllSpeakers();
-      if (response.ok) {
-        const data = await response.json();
-        setSpeakers(data);
-      } else {
-        setStatusMessages([{ message: t('general.error'), type: 'error' }]);
-      }
-    } catch (error) {
-      setStatusMessages([{ message: t('general.error'), type: 'error' }]);
-    }
-  };
-
-  useEffect(() => {
-
-    fetchOrganizers();
-    fetchSpeakers();
-  },[]);
+  
+  
+    
 
   return (
     <div className="max-w-6xl mx-auto p-8 bg-white shadow-lg rounded-lg grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -201,20 +165,20 @@ const EventForm: React.FC = () => {
 
       {/* Right side - Form */}
       <div>
-        {statusMessages.length > 0 && (
-          <ul className="mb-4 space-y-2">
-            {statusMessages.map(({ message, type }, index) => (
-              <li key={index} className={classNames('text-sm p-2 rounded', {
-                'bg-red-100 text-red-800': type === 'error',
-                'bg-green-100 text-green-800': type === 'success',
-              })}>
-                {message}
-              </li>
-            ))}
-          </ul>
-        )}
-
         <form onSubmit={handleSubmit} className="space-y-4">
+          
+          {!!errors.length && (
+            <ul className="text-red-800 rounded-lg" role="alert">
+              {errors.map((error, index) => (
+                <li key={index}>{error}</li>
+              ))}
+            </ul>
+          )}
+          {status && (
+            <p className="text-green-800" role="alert">
+              {status}
+            </p>
+          )} 
           <div>
             <label className="block text-gray-700">Event Name</label>
             <input
@@ -225,7 +189,7 @@ const EventForm: React.FC = () => {
               
               className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
             />
-            {nameError && <div className="text-red-800">{nameError}</div>}
+            
           </div>
 
           <div>
@@ -237,7 +201,7 @@ const EventForm: React.FC = () => {
               
               className="mt-8 block w-full border-gray-300 rounded-md shadow-sm"
             />
-            {descriptionError && <div className="text-red-800">{descriptionError}</div>}
+            
           </div>
 
           <div>
@@ -250,7 +214,7 @@ const EventForm: React.FC = () => {
               
               className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
             />
-            {categoryError && <div className="text-red-800">{categoryError}</div>}
+            
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -263,7 +227,7 @@ const EventForm: React.FC = () => {
                 
                 className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
               />
-              {startDateError && <div className="text-red-800">{startDateError}</div>}
+              
             </div>
             <div>
               <label className="block text-gray-700">End Date</label>
@@ -274,7 +238,7 @@ const EventForm: React.FC = () => {
                 
                 className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
               />
-              {endDateError && <div className="text-red-800">{endDateError}</div>}
+        
             </div>
           </div>
 
@@ -292,7 +256,7 @@ const EventForm: React.FC = () => {
                 </option>
               ))}
             </select>
-            {organizerError && <div className="text-red-800">{organizerError}</div>}
+            
           </div>
 
           <div className="relative">
@@ -332,8 +296,7 @@ const EventForm: React.FC = () => {
                 ))}
               </ul>
             </div>
-          )}
-          {speakersError && <div className="text-red-800">{speakersError}</div>}
+          )}         
         </div>
 
           <button
