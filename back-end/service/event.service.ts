@@ -85,7 +85,9 @@ const createEvent = async ({
     return await eventDb.createEvent(event);
 };
 
-const getAllEvents = async(): Promise<Event[]> => eventDb.getAllEvents();
+const getAllEvents = async(): Promise<Event[]> => {
+    return await eventDb.getAllEvents()
+};
 
 const getEventById = (id: number) => {
     const event = eventDb.getEventById({ id });

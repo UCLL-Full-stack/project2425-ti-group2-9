@@ -147,16 +147,12 @@ eventRouter.post('/', async (req: Request, res: Response, next: NextFunction) =>
  *                 errorMessage:
  *                   type: string
  */
-eventRouter.get('/', (req: Request, res: Response) => {
+eventRouter.get('/',async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const events = eventService.getAllEvents();
+        const events =await eventService.getAllEvents();
         res.status(200).json(events);
-    } catch (error: unknown) {
-        let errorMessage = "Unknown error";
-        if (error instanceof Error) {
-            errorMessage = error.message;
-        }
-        res.status(400).json({ status: 'error', errorMessage });
+    } catch (error) {
+        next(error);
     }
 });
 
@@ -194,17 +190,13 @@ eventRouter.get('/', (req: Request, res: Response) => {
  *                 errorMessage:
  *                   type: string
  */
-eventRouter.get('/:id', (req: Request, res: Response) => {
+eventRouter.get('/:id', (req: Request, res: Response, next: NextFunction) => {
     try {
         const id = parseInt(req.params.id);
         const event = eventService.getEventById(id);
         res.status(200).json(event);
-    } catch (error: unknown) {
-        let errorMessage = "Unknown error";
-        if (error instanceof Error) {
-            errorMessage = error.message;
-        }
-        res.status(400).json({ status: 'error', errorMessage });
+    } catch (error) {
+        next(error);
     }
 });
 
@@ -212,6 +204,8 @@ eventRouter.get('/:id', (req: Request, res: Response) => {
  * @swagger
  * /events/category/{category}:
  *   get:
+ *     security:
+ *       - bearerAuth: []
  *     summary: Get events by category
  *     description: Retrieve events based on category.
  *     parameters:

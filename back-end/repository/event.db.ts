@@ -108,8 +108,10 @@ const getAllEvents = async (): Promise<Event[]> => {
                 participants: { include: { user: true } },
             },
         });
-
-        return eventsPrisma.map((prismaEvent) => Event.from(prismaEvent));
+        //console.log(eventsPrisma);
+        console.log(eventsPrisma.map((eventsPrisma) => Event.from(eventsPrisma)));
+        return eventsPrisma.map((eventsPrisma) => Event.from(eventsPrisma));
+       
     } catch (error) {
         console.error('Error retrieving all events:', error);
         throw new Error('Database error. See server log for details.');
