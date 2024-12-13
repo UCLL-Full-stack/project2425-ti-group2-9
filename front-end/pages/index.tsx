@@ -1,8 +1,16 @@
+import React, {useEffect, useState } from 'react';
 import Head from 'next/head';
 import Image from 'next/image';
 import Header from '@components/headers';
 
 const Home: React.FC = () => {
+  const [eventName, setEventName] = useState<string | null>(null);
+
+  useEffect(() => {
+    const event = sessionStorage.getItem('event');
+    setEventName(event?? null);
+    
+  })
   return (
     <>
       <Head>
@@ -18,6 +26,9 @@ const Home: React.FC = () => {
           <p>
             Your gateway to organizing and attending unforgettable events.
           </p>
+          {eventName &&
+          <p>There is just an event created that is named {eventName}</p>
+          }
         </section>
       </main>
     </>
