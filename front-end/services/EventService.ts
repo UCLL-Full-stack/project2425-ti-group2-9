@@ -1,5 +1,5 @@
 const createEvent = async (formData: any) => {
-    const user =  localStorage.getItem("loggedInUser")
+    const user =  sessionStorage.getItem("loggedInUser")
     const token = user ? JSON.parse(user).token : null;
     return fetch(process.env.NEXT_PUBLIC_API_URL+'/events',{
         method: 'POST',
@@ -12,7 +12,7 @@ const createEvent = async (formData: any) => {
 }
 
 const getAllEvents = async () => {
-    const user = localStorage.getItem("loggedInUser") ;
+    const user = sessionStorage.getItem("loggedInUser") ;
     const token = user ? JSON.parse(user).token : null;
     return fetch(process.env.NEXT_PUBLIC_API_URL+'/events',{
         method: 'GET',

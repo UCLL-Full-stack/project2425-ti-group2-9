@@ -26,7 +26,7 @@ const EventForm = () => {
   const [status, setStatus] = useState<string>('');
 
   useEffect(() => {
-    const userString = localStorage.getItem("loggedInUser");
+    const userString = sessionStorage.getItem("loggedInUser");
     if (userString) {
       try {
         const parsedUser = JSON.parse(userString) as User; 
@@ -38,7 +38,7 @@ const EventForm = () => {
           setIsOrganizer(true);
         }
       } catch (error) {
-        console.error("Failed to parse user from localStorage:", error);
+        console.error("Failed to parse user from sessionStorage:", error);
       }
     }
   }, []);

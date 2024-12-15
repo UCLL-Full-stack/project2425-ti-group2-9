@@ -57,7 +57,7 @@ const UserLoginForm: React.FC = () => {
         },
       ]);
       const user = await response.json();
-        localStorage.setItem('loggedInUser', JSON.stringify({
+        sessionStorage.setItem('loggedInUser', JSON.stringify({
             token: user.token,
             fullname: user.fullname,
             username: user.username,
