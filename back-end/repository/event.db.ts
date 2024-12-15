@@ -108,8 +108,6 @@ const getAllEvents = async (): Promise<Event[]> => {
                 participants: { include: { user: true } },
             },
         });
-        //console.log(eventsPrisma);
-        console.log(eventsPrisma.map((eventsPrisma) => Event.from(eventsPrisma)));
         return eventsPrisma.map((eventsPrisma) => Event.from(eventsPrisma));
        
     } catch (error) {

@@ -3,7 +3,7 @@ import EventForm from "@components/events/AddEventForm";
 import EventService from "@services/EventService";
 import Header from "@components/headers";
 
-const Events = () => {    
+const AddEvents = () => {    
     return (
         <>
             <Header/>
@@ -14,4 +14,4 @@ const Events = () => {
         
     );
 }
-export default Events;
+export default AddEvents;

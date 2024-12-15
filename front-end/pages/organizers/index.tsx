@@ -65,13 +65,13 @@ const organizers: React.FC = () => {
                         />
                     )}
                 </section>
-                {selectedOrganizer && (
+                {/* {selectedOrganizer && (
                     <section>
                         <h2>Events by {selectedOrganizer.companyName}</h2>
                         <EventOverviewTable organizer={selectedOrganizer}/>
                     </section>
                     
-                )}
+                )} */}
             </main>
         </>
         
