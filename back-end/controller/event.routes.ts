@@ -64,10 +64,29 @@
  *             properties:
  *               id:
  *                 type: number
+ * 
+ *     AttendingInput:
+ *       type: object
+ *       properties:
+ *         event:
+ *           type: object
+ *           properties:
+ *             id:
+ *               type: number
+ *               format: int64
+ *         participants:
+ *           type: array
+ *           items:
+ *             type: object
+ *             properties:
+ *               id:
+ *                 type: number
+ *                 format: int64
  */
+
 import express, { NextFunction, Request, Response } from 'express';
 import eventService from '../service/event.service';
-import { EventInput, Role } from '../types';
+import { AttendingInput, EventInput, Role } from '../types';
 
 const eventRouter = express.Router();
 
@@ -108,10 +127,9 @@ const eventRouter = express.Router();
 eventRouter.post('/', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const request = req as Request & { auth: { username: string; role: Role } };
-        
         const { username, role } = request.auth;
         const eventInput = <EventInput>req.body;
-        const result = await eventService.createEvent(eventInput, {username, role});
+        const result = await eventService.createEvent(eventInput, { username, role });
         res.status(200).json(result);
     } catch (error) {
         next(error);
@@ -147,9 +165,9 @@ eventRouter.post('/', async (req: Request, res: Response, next: NextFunction) =>
  *                 errorMessage:
  *                   type: string
  */
-eventRouter.get('/',async (req: Request, res: Response, next: NextFunction) => {
+eventRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const events =await eventService.getAllEvents();
+        const events = await eventService.getAllEvents();
         res.status(200).json(events);
     } catch (error) {
         next(error);
@@ -190,10 +208,10 @@ eventRouter.get('/',async (req: Request, res: Response, next: NextFunction) => {
  *                 errorMessage:
  *                   type: string
  */
-eventRouter.get('/:id', (req: Request, res: Response, next: NextFunction) => {
+eventRouter.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const id = parseInt(req.params.id);
-        const event = eventService.getEventById(id);
+        const event = await eventService.getEventById(id);
         res.status(200).json(event);
     } catch (error) {
         next(error);
@@ -236,17 +254,54 @@ eventRouter.get('/:id', (req: Request, res: Response, next: NextFunction) => {
  *                 errorMessage:
  *                   type: string
  */
-eventRouter.get('/category/:category', (req: Request, res: Response) => {
+eventRouter.get('/category/:category', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const category = req.params.category;
-        const events = eventService.getEventsByCategory(category);
+        const events = await eventService.getEventsByCategory(category);
         res.status(200).json(events);
-    } catch (error: unknown) {
-        let errorMessage = "Unknown error";
-        if (error instanceof Error) {
-            errorMessage = error.message;
-        }
-        res.status(400).json({ status: 'error', errorMessage });
+    } catch (error) {
+        next(error);
+    }
+});
+
+/**
+ * @swagger
+ * /events/attending:
+ *   post:
+ *     security:
+ *       - bearerAuth: []
+ *     summary: Enroll attendee to an event
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/AttendingInput'
+ *     responses:
+ *       200:
+ *         description: The event with all attendees enrolled.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Event'
+ *       400:
+ *         description: Error enrolling attendee
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                 errorMessage:
+ *                   type: string
+ */
+eventRouter.post('/attending', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const event = <AttendingInput>req.body;
+        const result = await eventService.addParticipantToEvent(event);
+        res.status(200).json(result);
+    } catch (error) {
     }
 });
 

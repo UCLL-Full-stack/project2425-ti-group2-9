@@ -94,6 +94,13 @@ export class Event {
         return this.updatedAt;
     }
 
+    addParticipantToEvent(participant:Participant){
+        if(!participant) throw new Error('Participant is required');
+        if(this.participants?.includes(participant)){
+            throw new Error('You are already registered to attend this event');
+        } this.participants?.push(participant);
+    }
+
     validate(event: { name: string, description: string, category: string, startDate: Date, endDate: Date, organizer: Organizer, speakers: Speaker[], participants?: Participant[] }): void {
         if(typeof event.name!=='string' || event.name.trim().length === 0){
             throw new Error('Event name is required');

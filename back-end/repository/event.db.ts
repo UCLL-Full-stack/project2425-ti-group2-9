@@ -1,6 +1,7 @@
 import database from './database';
 import { Event } from "../model/event";
 import { nextDay } from 'date-fns';
+import { Participant } from '../model/participant';
 
 const createEvent = async (event: Event): Promise<Event> => {
     try {
@@ -56,6 +57,32 @@ const getEventById = async ({id}:{id:number}): Promise<Event | null> => {
         throw new Error('Database error. See server log for details.');
     }
 };
+
+const updatePartcipantsofEvent = async ({
+    event,
+}: {
+    event:Event;
+}): Promise<Event | null> => {
+    try {
+        const eventPrisma = await database.event.update({
+            where: {id: event.getId() },
+            data: {
+                participants:{
+                    connect: event.getParticipants()?.map((participant) => ({id: participant.getId() })),
+                },
+            },
+            include: {
+                organizer: { include: { user: true } },
+                speakers:{include: {user: true } },
+                participants: {include: {user: true } },
+            },
+        });
+        return Event.from(eventPrisma);
+    } catch (error) {
+        console.error(error);
+        throw new Error('Database error. See server log for details.');
+    }
+}
 
 const getEventsByCategory = async ({category}:{category: string}): Promise<Event[]> => {
     try {
@@ -136,4 +163,5 @@ export default {
     deleteEvent,
     getEventsByCategory,
     getEventByName,
+   updatePartcipantsofEvent
 };

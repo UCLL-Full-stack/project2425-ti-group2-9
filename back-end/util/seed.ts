@@ -77,6 +77,19 @@ const main = async () => {
         });
     }
 
+    const participants = [
+        {
+            userId: fritsParticipant.id,
+            dateOfBirth: new Date("1990-01-01"), // Example date of birth
+        },
+    ];
+    
+    for (const participantData of participants) {
+        await prisma.participant.create({
+            data: participantData,
+        });
+    }
+
     console.log("Seeding completed!");
 };
 

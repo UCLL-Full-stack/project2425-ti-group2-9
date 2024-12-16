@@ -50,6 +50,11 @@ type AuthenticationResponse = {
     role: string;
 };
 
+type AttendingInput = {
+    event: EventInput;
+    participants: ParticipantInput[];
+}
+
 
 export { 
     Role,
@@ -58,5 +63,6 @@ export {
     SpeakerInput,
     ParticipantInput,
     EventInput,
-    AuthenticationResponse
+    AuthenticationResponse,
+    AttendingInput
 };
