@@ -304,5 +304,51 @@ eventRouter.post('/attending', async (req: Request, res: Response, next: NextFun
     } catch (error) {
     }
 });
+/**
+ * @swagger
+ * /events/{id}:
+ *   delete:
+ *     security:
+ *       - bearerAuth: []
+ *     summary: Delete event by ID
+ *     description: Delete a specific event by its ID.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: The ID of the event to delete.
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Event deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Event'
+ *       401:
+ *         description: Unauthorized (Non-organizer)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                 errorMessage:
+ *                   type: string
+ */
+eventRouter.delete('/:id', async (req: Request, res: Response, next: NextFunction)=>{
+    try {
+        const request = req as Request & { auth: { username: string; role: Role } };
+        const { username, role } = request.auth;
+        const id = parseInt(req.params.id);
+        const event = await eventService.deleteEvent({id, username, role});
+        res.status(200).json(event);
+    } catch (error) {
+        next(error);
+    }
+    
+})
 
 export { eventRouter };

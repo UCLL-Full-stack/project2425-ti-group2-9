@@ -143,18 +143,36 @@ const getAllEvents = async (): Promise<Event[]> => {
     }
 };
 
-const deleteEvent = async (eventId: number): Promise<boolean> => {
+const deleteEvent = async ({ id }: { id: number }): Promise<Event | null> => {
     try {
-        const event = await database.event.findUnique({ where: { id: eventId } });
-        if (!event) return false;
-
-        await database.event.delete({ where: { id: eventId } });
-        return true;
+        const eventPrisma = await database.event.findUnique({
+            where: { id },
+            include: {
+                organizer: { include: { user: true } },
+                speakers: { include: { user: true } },
+                participants: { include: { user: true } },
+            },
+        });
+        await database.event.delete({
+            where: { id },
+            include: {
+                organizer: { include: { user: true } },
+                speakers: { include: { user: true } },
+                participants: { include: { user: true } },
+            },
+        });
+        if (eventPrisma) {
+            return Event.from(eventPrisma);
+        } else {
+            return null;
+        }
     } catch (error) {
-        console.error(error);
+        console.error('Error retrieving all events:', error);
         throw new Error('Database error. See server log for details.');
+        
     }
 };
+
 
 export default {
     createEvent,

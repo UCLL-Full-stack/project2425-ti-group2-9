@@ -124,6 +124,16 @@ const getEventsByCategory = async(category: string): Promise<Event[]> => {
         throw new Error(`No events found in category ${category}`);
     }
     return events;
+};
+
+const deleteEvent = async ({id, username, role}
+    :{id: number; username: string; role: Role}):Promise<Event | null> =>{
+        if(role !== 'organizer'){
+            throw new UnauthorizedError('credentials_required', {
+                message: 'You are not authorized to access this resource.',
+            });
+        }
+        return await eventDb.deleteEvent({id})
 }
 
 export default {
@@ -132,5 +142,6 @@ export default {
     getEventById,
     getEventByName,
     getEventsByCategory,
-    addParticipantToEvent
+    addParticipantToEvent,
+    deleteEvent
 };
