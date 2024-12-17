@@ -143,6 +143,30 @@ const getAllEvents = async (): Promise<Event[]> => {
     }
 };
 
+const getEventsOfOrganizer = async ({ username }: { username: string }): Promise<Event[]> => {
+    try {
+        const eventsPrisma = await database.event.findMany({
+            where: {
+                organizer: {
+                    user: {
+                        username: username,
+                    },
+                },
+            },
+            include: {
+                organizer: { include: { user: true } },
+                speakers: { include: { user: true } },
+                participants: { include: { user: true } },
+            },
+        });
+        return eventsPrisma.map((eventPrisma) => Event.from(eventPrisma));
+    } catch (error) {
+        console.error('Error retrieving organizer events:', error);
+        throw new Error('Database error. See server log for details.');
+    }
+};
+
+
 const deleteEvent = async ({ id }: { id: number }): Promise<Event | null> => {
     try {
         const eventPrisma = await database.event.findUnique({
@@ -181,5 +205,6 @@ export default {
     deleteEvent,
     getEventsByCategory,
     getEventByName,
-   updatePartcipantsofEvent
+   updatePartcipantsofEvent,
+   getEventsOfOrganizer
 };

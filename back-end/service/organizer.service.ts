@@ -12,6 +12,7 @@ const getAllOrganizers = async ({
     }):Promise <Organizer[]> => {
     if(role === 'admin'|| role === 'organizer') {
         return await organizerDb.getAllOrganizers();
+        
     } else{
         throw new UnauthorizedError('credentials_required', {
             message: 'You are not authorized to access this resource.',

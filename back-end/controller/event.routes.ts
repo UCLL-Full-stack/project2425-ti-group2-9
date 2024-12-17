@@ -167,7 +167,9 @@ eventRouter.post('/', async (req: Request, res: Response, next: NextFunction) =>
  */
 eventRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const events = await eventService.getAllEvents();
+        const request = req as Request & { auth: { username: string; role: Role } };
+        const { username, role } = request.auth;
+        const events = await eventService.getAllEvents({username, role});
         res.status(200).json(events);
     } catch (error) {
         next(error);

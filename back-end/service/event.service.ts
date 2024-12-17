@@ -103,8 +103,17 @@ const addParticipantToEvent = async ({
     }    
 };
 
-const getAllEvents = async(): Promise<Event[]> => {
-    return await eventDb.getAllEvents()
+const getAllEvents = async({username, role}:{username: string;role:Role}): Promise<Event[]> => {
+    if(role === 'admin' || role === 'participant'){
+        return eventDb.getAllEvents()
+    }else if (role === 'organizer'){
+        return eventDb.getEventsOfOrganizer({username});
+    } else{
+        throw new UnauthorizedError('credentials_required', {
+            message: 'You are not authorized to access this resource.',
+        });
+    }
+    
 };
 
 const getEventById = (id: number) => {
