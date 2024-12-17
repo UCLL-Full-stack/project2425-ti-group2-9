@@ -17,6 +17,13 @@ export type Speaker = {
     events?: Event[];
 };
 
+export type Participant = {
+    id?: number;
+    user: User;
+    dateOfBirth: Date;
+    events?: Event[];
+};
+
 export type Event = {
     id?: number;
     name: string;

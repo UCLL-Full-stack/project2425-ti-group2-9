@@ -53,20 +53,36 @@ const getParticipantById = async ({ id }: {id: number}): Promise<Participant | n
     }
 };
 
-// const getParticipantByUserId = ({id}:{id:number}): Participant | undefined => {
-//     try {
-//         return participants.find(participant => participant.getUser().getId() === id);
-//     } catch (error) {
-//         console.error(error);
-//         throw new Error('Database error. See server log for details.');
-//     }
-    
-// };
+const getParticipantByUsername = async ({username}:{username: string}): Promise<Participant | null> => {
+    try {
+        const participantPrisma = await database.participant.findFirst({
+            where: {
+                user: {
+                    username: username,
+                },
+            },
+            include: {
+                user: true,
+            },
+        });
+
+        if (!participantPrisma) {
+            throw new Error(`No participant found with username: ${username}`);
+        }
+
+        return Participant.from(participantPrisma);
+    } catch (error) {
+        console.error(error);
+        throw new Error('Database error. See server log for details.');
+    }
+};
+
     
 
 export default {
     //createParticipant,
     getAllParticipants,
     getParticipantById,
+    getParticipantByUsername
     //getParticipantByUserId,
 };

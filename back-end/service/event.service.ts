@@ -6,6 +6,7 @@ import participantDb from "../repository/participant.db";
 import speakerDb from "../repository/speaker.db";
 import {Role,  EventInput, ParticipantInput,  OrganizerInput, SpeakerInput } from "../types";
 import { Participant } from "../model/participant";
+import { error } from "console";
 
 
 const createEvent = async ({
@@ -72,31 +73,35 @@ const createEvent = async ({
 
 const addParticipantToEvent = async ({
     event: eventInput,
-    participants: participantsInput,
+    //participants: participantsInput,
+    username,
+    role
+   
 }:{
     event: EventInput;
-    participants: ParticipantInput[];
+    //participants: ParticipantInput[];
+    username: string;
+    role: Role 
+    
 }): Promise< Event | null> => {
-    if(!eventInput.id) throw new Error("Event id is required");
-    if(!participantsInput.length) throw new Error("At least one participant is required");
+    if(role === 'participant'){
+        if(!eventInput.id) throw new Error("Event id is required");
+        
+        const event = await eventDb.getEventById({id:eventInput.id});
+        if(!event) throw new Error('Events does not exist');
 
-    const event = await eventDb.getEventById({id:eventInput.id});
-    if(!event) throw new Error('Events does not exist');
-
-    const participants = await Promise.all(
-        participantsInput.map(async (participantInput)=>{
-            if(!participantInput.id) throw new Error("Participant id is required");
-            const participant = await participantDb.getParticipantById({id: participantInput.id});
-            if(!participant) throw new Error(`Did not found participant with id ${participantInput.id }`);
-            return participant;
-        })
-    )
-    participants.forEach((participant)=>{
+        const participant = await participantDb.getParticipantByUsername({username: username});
+        if(!participant){
+            throw new Error("Did not find participant")
+        }
         event.addParticipantToEvent(participant);
-    });
-
-    return await eventDb.updatePartcipantsofEvent({ event });
-}
+        return await eventDb.updatePartcipantsofEvent({ event });
+    }else{
+        throw new UnauthorizedError('credentials_required', {
+            message: 'You are not authorized to access this resource.',
+        });
+    }    
+};
 
 const getAllEvents = async(): Promise<Event[]> => {
     return await eventDb.getAllEvents()

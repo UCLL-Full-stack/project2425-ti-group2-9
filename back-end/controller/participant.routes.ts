@@ -46,72 +46,15 @@
 import express, { Request, Response } from 'express';
 import participantService from '../service/participant.service';
 import { ParticipantInput } from '../types';
+import { parse } from 'path';
 
 const participantRouter = express.Router();
-
-/**
- * @swagger
- * /participants:
- *   post:
- *     summary: Create a new participant
- *     description: This endpoint allows you to create a new participant by providing user details and date of birth.
- *     requestBody:
- *       description: Participant object that needs to be created
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               user:
- *                 type: object
- *                 properties:
- *                   id:
- *                     type: number
- *                     description: The ID of the user.
- *                     example: 1
- *               dateOfBirth:
- *                 type: string
- *                 format: date
- *                 description: The participant's date of birth.
- *                 example: "2004-05-15"
- *     responses:
- *       200:
- *         description: Participant successfully created
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Participant'
- *       400:
- *         description: Error creating participant
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                 errorMessage:
- *                   type: string
- */
-// participantRouter.post('/', (req: Request, res: Response) => {
-//     try {
-//         const participant = <ParticipantInput>req.body;
-//         const result = participantService.createParticipant(participant);
-//         res.status(200).json(result);
-//     } catch (error: unknown) {
-//         let errorMessage = "Unknown error";
-//         if (error instanceof Error) {
-//             errorMessage = error.message;
-//         }
-//         res.status(400).json({ status: 'error', errorMessage });
-//     }
-// });
-
 /**
  * @swagger
  * /participants:
  *   get:
+ *     security:
+ *         - bearerAuth: []
  *     summary: Get all participants
  *     description: Retrieve a list of all participants
  *     responses:
@@ -147,5 +90,63 @@ participantRouter.get('/', async(req: Request, res: Response) => {
         res.status(400).json({ status: 'error', errorMessage });
     }
 });
+/**
+ * @swagger
+ * /participants/{username}:
+ *   get:
+ *     security:
+ *         - bearerAuth: []
+ *     summary: Get a participant by username
+ *     description: Retrieve a participant by their username
+ *     parameters:
+ *       - name: username
+ *         in: path
+ *         required: true
+ *         description: Username of the participant
+ *         schema:
+ *           type: string
+ *           example: john_doe
+ *     responses:
+ *       200:
+ *         description: Participant retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Participant'
+ *       404:
+ *         description: Participant not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                 errorMessage:
+ *                   type: string
+ */
+participantRouter.get('/:username', async (req: Request, res: Response) => {
+    try {
+        const username = (req.params.username); 
+        const participant = await participantService.getParticipantByUserName({username});
+
+        if (!participant) {
+            return res.status(404).json({
+                status: 'error',
+                errorMessage: `Participant with username ${username} not found`,
+            });
+        }
+
+        res.status(200).json(participant);
+    } catch (error: unknown) {
+        let errorMessage = "Unknown error";
+        if (error instanceof Error) {
+            errorMessage = error.message;
+        }
+        res.status(400).json({ status: 'error', errorMessage });
+    }
+});
+
+
 
 export { participantRouter };

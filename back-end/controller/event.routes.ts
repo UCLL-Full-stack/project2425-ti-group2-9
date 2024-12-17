@@ -296,14 +296,20 @@ eventRouter.get('/category/:category', async (req: Request, res: Response, next:
  *                 errorMessage:
  *                   type: string
  */
-eventRouter.post('/attending', async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const event = <AttendingInput>req.body;
-        const result = await eventService.addParticipantToEvent(event);
+eventRouter.post('/attending',async (req: Request, res: Response, next: NextFunction) => {
+      try {
+        const request = req as Request & { auth: { username: string; role: Role } };
+        const { username, role } = request.auth;
+        const { event }: { event: EventInput } = req.body;
+        const result = await eventService.addParticipantToEvent({event, username, role,});
         res.status(200).json(result);
-    } catch (error) {
+      } catch (error) {
+        next(error);
+      }
     }
-});
+  );
+  
+  
 /**
  * @swagger
  * /events/{id}:
