@@ -36,6 +36,26 @@ const createEvent = async (event: Event): Promise<Event> => {
     }
 };
 
+const updateEventName = async ({ id, name }: { id: number, name: string }): Promise<Event | null> => {
+    try {
+        const updatedEvent = await database.event.update({
+            where: { id },
+            data: { name },
+            include: {
+                organizer: { include: { user: true } },
+                speakers: { include: { user: true } },
+                participants: { include: { user: true } },
+            },
+        });
+
+        return Event.from(updatedEvent);
+    } catch (error) {
+        console.error('Error updating event name:', error);
+        throw new Error('Database error. See server log for details.');
+    }
+};
+
+
 const getEventById = async ({id}:{id:number}): Promise<Event | null> => {
     try {
         const eventPrisma = await database.event.findUnique({
@@ -202,5 +222,6 @@ export default {
     getEventsByCategory,
     getEventByName,
    updatePartcipantsofEvent,
-   getEventsOfOrganizer
+   getEventsOfOrganizer,
+   updateEventName
 };

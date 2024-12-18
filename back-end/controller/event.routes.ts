@@ -404,5 +404,76 @@ eventRouter.delete('/:id', async (req: Request, res: Response, next: NextFunctio
     }
     
 })
+/**
+ * @swagger
+ * /events/update/{id}:
+ *   put:
+ *     security:
+ *       - bearerAuth: []
+ *     summary: Update event name by ID
+ *     description: Update the name of a specific event by its ID.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: The ID of the event to update.
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: The new name of the event.
+ *     responses:
+ *       200:
+ *         description: Event name updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Event'
+ *       400:
+ *         description: Invalid event ID or name
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                 errorMessage:
+ *                   type: string
+ *       401:
+ *         description: Unauthorized (Non-organizer or Non-admin)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                 errorMessage:
+ *                   type: string
+ */
+
+eventRouter.put('/update/:id', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const request = req as Request & { auth: { username: string; role: Role } };
+        const { username, role } = request.auth;
+        const id = parseInt(req.params.id);
+        console.log('Request body:', req.body);
+        const { name }: { name: string } = req.body;
+        console.log({id, name, username, role});
+        const updatedEvent = await eventService.updateEvent({id, name, username, role});
+        res.status(200).json(updatedEvent);
+    } catch (error) {
+        next(error);
+    }
+});
+
 
 export { eventRouter };

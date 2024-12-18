@@ -7,6 +7,7 @@ import speakerDb from "../repository/speaker.db";
 import {Role,  EventInput, ParticipantInput,  OrganizerInput, SpeakerInput } from "../types";
 import { Participant } from "../model/participant";
 import { error } from "console";
+import { eventNames } from "process";
 
 
 const createEvent = async ({
@@ -101,6 +102,33 @@ const addParticipantToEvent = async ({
     }    
 };
 
+const updateEvent = async({
+    id,
+    name,
+    username,
+    role,
+}:{
+    id: number;
+    name: string;
+    username: string;
+    role: Role 
+}): Promise<Event> => {
+    if(role === 'admin' || role === 'organizer'){
+        const event =  await eventDb.updateEventName({id, name})
+        if(!name){
+            throw new Error('please give name')
+        }
+        if(!event){
+            throw new Error("Updating event failed");
+        }
+        return event;       
+    } else{
+        throw new UnauthorizedError('credentials_required', {
+            message: 'You are not authorized to access this resource.',
+        });
+    }
+}
+
 const getAllEvents = async({username, role}:{username: string;role:Role}): Promise<Event[]> => {
     if(role === 'admin' || role === 'participant'){
         return eventDb.getAllEvents()
@@ -155,5 +183,6 @@ export default {
     getEventByName,
     getEventsByCategory,
     addParticipantToEvent,
-    deleteEvent
+    deleteEvent,
+    updateEvent
 };
