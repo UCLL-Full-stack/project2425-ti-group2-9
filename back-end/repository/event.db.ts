@@ -47,11 +47,7 @@ const getEventById = async ({id}:{id:number}): Promise<Event | null> => {
             },
         });
 
-        if(eventPrisma) {
-            return Event.from(eventPrisma);
-        }else{
-            return null;
-        }
+       return eventPrisma? Event.from(eventPrisma):null;
     } catch (error) {
         console.error('Error retrieving event by ID:', error);
         throw new Error('Database error. See server log for details.');
@@ -121,7 +117,7 @@ const getEventByName = async({ name }: {name: string}): Promise<Event | null> =>
             return null;
         }
     } catch (error) {
-        console.error(error);
+        console.error('Error retrieving events by name:',error);
         throw new Error('Database error. See server log for details.');
     }
 }

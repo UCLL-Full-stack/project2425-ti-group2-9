@@ -73,13 +73,11 @@ const createEvent = async ({
 
 const addParticipantToEvent = async ({
     event: eventInput,
-    //participants: participantsInput,
     username,
     role
    
 }:{
     event: EventInput;
-    //participants: ParticipantInput[];
     username: string;
     role: Role 
     
@@ -116,7 +114,7 @@ const getAllEvents = async({username, role}:{username: string;role:Role}): Promi
     
 };
 
-const getEventById = (id: number) => {
+const getEventById = (id: number): Promise<Event |null> => {
     const event = eventDb.getEventById({ id });
     if (!event) {
         throw new Error(`Event with id ${id} not found`);
@@ -142,7 +140,7 @@ const getEventsByCategory = async(category: string): Promise<Event[]> => {
 
 const deleteEvent = async ({id, username, role}
     :{id: number; username: string; role: Role}):Promise<Event | null> =>{
-        if(role !== 'organizer'){
+        if(role !== 'organizer' ){
             throw new UnauthorizedError('credentials_required', {
                 message: 'You are not authorized to access this resource.',
             });

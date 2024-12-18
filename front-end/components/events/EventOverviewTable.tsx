@@ -7,7 +7,7 @@ import EventService from "@services/EventService";
 
 type Props = {
   events: Array<Event>;
-  participant: Participant;
+  //participant: Participant;
 };
 
 const EventOverviewTable: React.FC<Props> = ({ events }: Props) => {

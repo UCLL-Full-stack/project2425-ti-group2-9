@@ -55,7 +55,7 @@ const organizers: React.FC = () => {
             <Header />
             <main className="d-flex flex-column justify-content-center align-items-center">
                 <h2>Organizers</h2>
-                {error && <div className="test-red-800">{error}</div>}
+                {error && <div className="text-red-800">{error}</div>}
                 {isLoading && <p>Is loading ...</p>}
                 <section>
                     {data &&(

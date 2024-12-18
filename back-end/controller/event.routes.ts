@@ -268,6 +268,52 @@ eventRouter.get('/category/:category', async (req: Request, res: Response, next:
 
 /**
  * @swagger
+ * /events/name/{name}:
+ *   get:
+ *     security:
+ *       - bearerAuth: []
+ *     summary: Get event by name
+ *     description: Retrieve events based on name.
+ *     parameters:
+ *       - in: path
+ *         name: name
+ *         required: true
+ *         description: The name of events to filter by.
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Events found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Event'
+ *       400:
+ *         description: Error retrieving events
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                 errorMessage:
+ *                   type: string
+ */
+eventRouter.get('/name/:name', async(req: Request, res: Response, next: NextFunction) => {
+    try {
+        const eventName = req.params.name;
+        const event = await eventService.getEventByName(eventName);
+        res.status(200).json(event)
+    } catch (error) {
+        next(error);
+    }
+})
+
+/**
+ * @swagger
  * /events/attending:
  *   post:
  *     security:
