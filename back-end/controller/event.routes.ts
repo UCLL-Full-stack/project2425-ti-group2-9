@@ -465,9 +465,7 @@ eventRouter.put('/update/:id', async (req: Request, res: Response, next: NextFun
         const request = req as Request & { auth: { username: string; role: Role } };
         const { username, role } = request.auth;
         const id = parseInt(req.params.id);
-        console.log('Request body:', req.body);
         const { name }: { name: string } = req.body;
-        console.log({id, name, username, role});
         const updatedEvent = await eventService.updateEvent({id, name, username, role});
         res.status(200).json(updatedEvent);
     } catch (error) {
