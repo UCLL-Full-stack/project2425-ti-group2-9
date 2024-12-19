@@ -85,7 +85,8 @@ const EventOverviewTable: React.FC<Props> = ({ events }: Props) => {
                 <td className="p-4 text-gray-700">{event.category}</td>
                 <td className="p-4 text-gray-700">{new Date(event.startDate).toDateString()}</td>
                 <td className="p-4 text-gray-700">{new Date(event.endDate).toDateString()}</td>
-                <td>
+                {(loggedInUser?.role === 'participant') && (
+                  <td>
                   <button
                     className="text-white bg-blue-700 hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
                     onClick={(e) => {
@@ -97,6 +98,8 @@ const EventOverviewTable: React.FC<Props> = ({ events }: Props) => {
                     Attend
                   </button>
                 </td>
+                )}
+                
               </tr>
             ))}
           </tbody>
