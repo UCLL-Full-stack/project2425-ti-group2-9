@@ -3,7 +3,8 @@ import { Event, Participant, User } from "@types";
 import ParticipantService from "@services/ParticipantService";
 import useSWR, { mutate } from "swr";
 import useInterval from "use-interval";
-import EventService from "@services/EventService";
+import EventService from "../../services/EventService";
+import classNames from "classnames";
 
 type Props = {
   events: Array<Event>;
@@ -53,8 +54,13 @@ const EventOverviewTable: React.FC<Props> = ({ events }: Props) => {
             {events.map((event, index) => (
               <tr
                 key={index}
-                className={`${index % 2 === 0 ? "bg-gray-50" : "bg-white"} hover:bg-blue-100`}
-              >
+                onClick={() => selectEvent(event)}
+                className={classNames({
+                  "table-active":
+                      selectedEvent?.id === event.id,
+              })}
+              data-testid={`details-button-${index}`}
+              role="button">
                 <td className="p-4 text-gray-700">{event.name}</td>
                 <td className="p-4 text-gray-700">{event.description}</td>
                 <td className="p-4 text-gray-700">{event.category}</td>
@@ -67,6 +73,7 @@ const EventOverviewTable: React.FC<Props> = ({ events }: Props) => {
                       selectEvent(event);
                       handleAttending(event);
                     }}
+                    data-testid={`attend-button-${index}`}
                   >
                     Attend
                   </button>

@@ -4,10 +4,10 @@ export type StatusMessage = {
 };
 
 export type Organizer = {
-    id: number;
+    id?: number;
     user: User;
     companyName: string;
-    events: Event[];
+    events?: Event[];
 }
 
 export type Speaker = {

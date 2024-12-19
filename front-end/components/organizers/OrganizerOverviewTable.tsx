@@ -1,12 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Organizer } from '@types';
 
 type Props = {
     organizers: Array<Organizer>;
-    selectOrganizer: (organizer: Organizer) => void;
 };
 
-const OrganizerOverviewTable: React.FC<Props> = ({organizers, selectOrganizer}: Props) => {
+const OrganizerOverviewTable: React.FC<Props> = ({organizers}: Props) => {
+    // const [selectOrganizer, setSelectedOrganizer] = useState<Organizer | null>;
+
+    // const selectOrganizer = (organizer: Organizer) => {
+    //     setSelectedOrganizer(organizer);
+    // };
     return (
         <>
             {organizers && (
@@ -19,7 +23,7 @@ const OrganizerOverviewTable: React.FC<Props> = ({organizers, selectOrganizer}: 
                     </thead>
                     <tbody>
                         {organizers.map((organizer, index) => (
-                            <tr key={index}onClick={() => selectOrganizer(organizer)}role="button">
+                            <tr >
                                 <td>{organizer.companyName}</td>
                                 <td>{organizer.user.firstName} {organizer.user.lastName}</td>
 
