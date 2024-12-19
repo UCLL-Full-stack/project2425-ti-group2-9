@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Event, User } from "@types";
 import classNames from "classnames";
+import EventService from "@services/EventService";
+import { useRouter } from "next/router";
+
 
 type Props = {
   events: Array<Event>;
@@ -10,6 +13,7 @@ const EventOverviewTable: React.FC<Props> = ({ events }: Props) => {
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [loggedInUser, setLoggedInUser] = useState<User | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const router = useRouter();
 
   useEffect(() => {
     const userString = sessionStorage.getItem("loggedInUser");
@@ -25,10 +29,11 @@ const EventOverviewTable: React.FC<Props> = ({ events }: Props) => {
 
   const selectEvent = (event: Event) => {
     setSelectedEvent(event);
+    router.push(`/events/${event.name}`)
   };
 
   const handleAttending = async (event: Event) => {
-    console.log("Attending event:", event.name); // Placeholder for actual functionality
+    EventService.attendingEvent(event);
   };
 
   const filteredEvents = events.filter(

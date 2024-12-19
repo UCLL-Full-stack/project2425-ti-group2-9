@@ -4,6 +4,8 @@ import Header from "@components/headers";
 import { Event } from "@types";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
+import useSWR from "swr";
+import useInterval from "use-interval";
 
 const GetEventByName: React.FC = () => {
   const [event, setEvent] = useState<Event | null>(null);
@@ -38,15 +40,17 @@ const GetEventByName: React.FC = () => {
   };
 
   
-  
+  const { data } = useSWR(eventName ? `event-${eventName}` : null, () => fetchEventByName(eventName as string
+  ), {
+    refreshInterval: 5000, 
+    revalidateOnFocus: true, 
+  });
 
-  useEffect(() => {
-    if (eventName) {
-      setLoading(true);
-      setError(null);
-      fetchEventByName(eventName as string);
-    }
-  }, [eventName]);
+  useInterval(() => {
+    if (eventName) fetchEventByName(eventName as string); 
+  }, 5000);
+
+
 
   return (
     <>
