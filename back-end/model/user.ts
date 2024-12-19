@@ -84,6 +84,9 @@ export class User {
         if (!user.role) {
             throw new Error('Role is required');
         }
+        if(user.email !== '^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$'){
+            throw new Error('Email is not correct')
+        }
     }
 
     equals(user: User): boolean {
@@ -92,8 +95,7 @@ export class User {
             this.firstName === user.getFirstName() &&
             this.lastName === user.getLastName() &&
             this.email === user.getEmail() &&
-            this.password === user.getPassword() &&
-            this.role === user.getRole()
+            this.password === user.getPassword()
         );
     }
 
