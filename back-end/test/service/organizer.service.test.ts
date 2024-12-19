@@ -1,9 +1,9 @@
 import { Organizer } from '../../model/organizer';
 import { User } from '../../model/user';
 import organizerDb from '../../repository/organizer.db';
-import userDb from '../../repository/user.db';
 import organizerService from '../../service/organizer.service';
-import { UserInput, OrganizerInput } from '../../types';
+import { Role, UserInput } from '../../types';
+import { UnauthorizedError } from 'express-jwt';
 
 const userInput: UserInput = {
     id: 1,
@@ -15,70 +15,97 @@ const userInput: UserInput = {
     role: 'organizer',
 };
 
-const user = new User({
+const userOrganizer = new User({
     ...userInput,
-});
+})
 
-const organizerInput: OrganizerInput = {
+const organizerInput = {
     id: 1,
-    user: userInput,
+    user: userOrganizer,
     companyName: 'Tech Corp',
 };
 
-let createOrganizerMock: jest.Mock;
-let mockUserDbGetUserById: jest.Mock;
-let mockOrganizerDbGetOrganizerByUserId: jest.Mock;
+const organizer = new Organizer({
+    ...organizerInput,
+})
 
-beforeEach(() => {
-    createOrganizerMock = jest.fn();
-    mockUserDbGetUserById = jest.fn();
-    mockOrganizerDbGetOrganizerByUserId = jest.fn();
+const mockGetAllOrganizersDb = jest.fn();
+const mockGetOrganizerByIdDb = jest.fn();
 
-    jest.spyOn(organizerDb, 'createOrganizer').mockImplementation(createOrganizerMock);
-    jest.spyOn(userDb, 'getUserById').mockImplementation(mockUserDbGetUserById);
-    jest.spyOn(organizerDb, 'getOrganizerByUserId').mockImplementation(mockOrganizerDbGetOrganizerByUserId);
-});
+jest.spyOn(organizerDb, 'getAllOrganizers').mockImplementation(mockGetAllOrganizersDb);
+jest.spyOn(organizerDb, 'getOrganizerById').mockImplementation(mockGetOrganizerByIdDb);
 
 afterEach(() => {
     jest.clearAllMocks();
 });
 
-// Happy Test Case
-test('given a valid organizer, when organizer is created, then organizer is created with those values', async () => {
-    // Given
-    mockUserDbGetUserById.mockReturnValue(user);
+// **Tests for getAllOrganizers**
 
-    const organizerInput = {
-        user: userInput,
-        companyName: 'Tech Corp',
-    };
+// Happy Test Case: Authorized User (Admin)
+test('given an admin user, when getAllOrganizers is called, then all organizers are returned', async () => {
+    // Given
+    const adminUser = { username: 'adminUser', role: 'admin' as Role};
+    //const mockOrganizers = [{ id: 1, name: 'Test Organizer' }, { id: 2, name: 'Another Organizer' }];
+    mockGetAllOrganizersDb.mockReturnValue(organizer);
 
     // When
-    organizerService.createOrganizer(organizerInput);
+    const result = await organizerService.getAllOrganizers(adminUser);
 
     // Then
-    expect(createOrganizerMock).toHaveBeenCalledTimes(1);
-    expect(createOrganizerMock).toHaveBeenCalledWith(organizerInput);
+    expect(result).toEqual(organizer);
+    expect(mockGetAllOrganizersDb).toHaveBeenCalledTimes(1);
 });
 
-// Unhappy Test Case
-test('given an organizer with an existing user id, when organizer is created, then an error is thrown', async () => {
+// Unhappy Test Case: Unauthorized User
+test('given a non-admin/organizer user, when getAllOrganizers is called, then UnauthorizedError is thrown', async () => {
     // Given
-    const existingOrganizer = new Organizer({
-        user,
-        companyName: 'Tech Corp',
-    });
-
-    mockOrganizerDbGetOrganizerByUserId.mockReturnValue(existingOrganizer); // Mock the existence of the organizer
-
-    const organizerInput = {
-        user: userInput,
-        companyName: 'Tech Corp',
-    };
+    const nonAuthorizedUser = { username: 'basicUser', role: 'participant' as Role };
 
     // When
-    const createOrganizer = () => organizerService.createOrganizer(organizerInput);
+    const getAllOrganizersCall = async () => await organizerService.getAllOrganizers(nonAuthorizedUser);
 
     // Then
-    expect(createOrganizer).toThrow(`Organizer with user id ${userInput.id} already exists.`);
+    await expect(getAllOrganizersCall()).rejects.toThrow(UnauthorizedError);
+    expect(mockGetAllOrganizersDb).not.toHaveBeenCalled();
+});
+
+// **Tests for getOrganizerById**
+
+// Happy Test Case: Authorized User (Organizer) with Existing Organizer
+test('given an organizer user and an existing organizer id, when getOrganizerById is called, then the organizer is returned', async () => {
+    // Given
+    const request = {id:1, username: 'adminUser', role: 'admin' as Role};
+    //const existingOrganizer = { id: 1, name: 'Existing Organizer' };
+    mockGetOrganizerByIdDb.mockReturnValue(organizer);
+
+    // When
+    const result = await organizerService.getOrganizerById( request);
+
+    // Then
+    expect(result).toEqual(organizer);
+    expect(mockGetOrganizerByIdDb).toHaveBeenCalledTimes(1);
+    expect(mockGetOrganizerByIdDb).toHaveBeenCalledWith({ id: request.id });
+});
+
+// Unhappy Test Case: Non-Existent Organizer
+test('given an authorized user but non-existent organizer id, when getOrganizerById is called, then Error is thrown', async () => {
+    // Given
+    const badRequest = { id: 99, username: 'adminUser', role: 'admin' as Role};
+    mockGetOrganizerByIdDb.mockReturnValue(null);
+    // When
+    const getOrganizerByIdCall = async () => await organizerService.getOrganizerById(badRequest);
+    // Then
+    await expect(getOrganizerByIdCall()).rejects.toThrow(Error);
+    expect(mockGetOrganizerByIdDb).toHaveBeenCalledTimes(1);
+    expect(mockGetOrganizerByIdDb).toHaveBeenCalledWith({ id: badRequest.id });
+});
+// Unhappy Test Case: Unauthorized User
+test('given a non-admin/organizer user, when getOrganizerById is called, then UnauthorizedError is thrown', async () => {
+    // Given
+    const request = { id: 1, username: 'basicUser', role: 'participant' as Role};
+    // When
+    const getOrganizerByIdCall = async () => await organizerService.getOrganizerById(request);
+    // Then
+    await expect(getOrganizerByIdCall()).rejects.toThrow(UnauthorizedError);
+    expect(mockGetOrganizerByIdDb).not.toHaveBeenCalled();
 });
