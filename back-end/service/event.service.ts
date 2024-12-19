@@ -38,7 +38,7 @@ const createEvent = async ({
         }
         organizer = await organizerDb.getOrganizerById({ id: organizerInput.id });
         if (!organizer) {
-            throw new Error(`Organizer with id ${organizerInput.id} not found`);
+            throw new Error(`Organizer not found`);
         }
     }
     

@@ -2,24 +2,6 @@ import { Participant } from "../model/participant";
 import database from "./database";
 import { User } from "../model/user";
 
-
-// const createParticipant = ({
-//     user,
-//     dateOfBirth,
-// }: {
-//     user: User;
-//     dateOfBirth: Date;
-//     events?: Event[];
-// }): Participant => {
-//     const participant = new Participant({
-//         user,
-//         dateOfBirth,
-//     });
-
-//     participants.push(participant);
-//     return participant;
-// };
-
 const getAllParticipants = async(): Promise<Participant[]> => {
     try {
         const participantPrisma = await database.participant.findMany({

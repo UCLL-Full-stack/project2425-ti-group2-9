@@ -44,12 +44,12 @@ afterEach(() => {
 // Happy Test Case: Authorized User (Admin)
 test('given an admin user, when getAllOrganizers is called, then all organizers are returned', async () => {
     // Given
-    const adminUser = { username: 'adminUser', role: 'admin' as Role};
+    const request = { username: 'adminUser', role: 'admin' as Role};
     //const mockOrganizers = [{ id: 1, name: 'Test Organizer' }, { id: 2, name: 'Another Organizer' }];
     mockGetAllOrganizersDb.mockReturnValue(organizer);
 
     // When
-    const result = await organizerService.getAllOrganizers(adminUser);
+    const result = await organizerService.getAllOrganizers(request);
 
     // Then
     expect(result).toEqual(organizer);

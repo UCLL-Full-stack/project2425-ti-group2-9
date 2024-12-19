@@ -20,7 +20,7 @@ const authenticate = async ({ username, password }: UserInput): Promise<Authenti
     const isValidPassword = await bcrypt.compare(password, user.getPassword());
 
     if (!isValidPassword) {
-        throw new Error('Incorrect password.');
+        throw new Error('Username or password is incorrect');
     }
     return {
         token: generateJwtToken({ username, role: user.getRole() }),

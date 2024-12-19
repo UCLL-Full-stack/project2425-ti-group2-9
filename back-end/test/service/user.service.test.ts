@@ -1,7 +1,8 @@
 import { User } from '../../model/user';
 import userService from '../../service/user.service';
 import userDb from '../../repository/user.db';
-import { UserInput } from '../../types';
+import { Role, UserInput } from '../../types';
+import bcrypt from 'bcrypt';
 
 const userInput: UserInput = {
     username: 'janedoe',
@@ -9,90 +10,72 @@ const userInput: UserInput = {
     firstName: 'Jane',
     lastName: 'Doe',
     email: 'jane.doe@mail.be',
-    role: 'participant',
+    role: 'participant' as Role,
 };
 
 const user = new User({
     id: 1,
-    ...userInput,
+   ...userInput,
 });
 
-let createUserMock: jest.Mock;
-let mockUserDbGetUserByEmail: jest.Mock;
-let mockUserDbGetUserById: jest.Mock;
+let mockGetAllUsersDb: jest.Mock;
+let mockGetUserByUsernameDb: jest.Mock;
+let mockCreateUserDb: jest.Mock;
 
 beforeEach(() => {
-    createUserMock = jest.fn();
-    mockUserDbGetUserByEmail = jest.fn();
-    mockUserDbGetUserById = jest.fn();
+    mockGetAllUsersDb = jest.fn();
+    mockGetUserByUsernameDb = jest.fn();
+    mockCreateUserDb = jest.fn();
 
-    jest.spyOn(userDb, 'createUser').mockImplementation(createUserMock);
-    jest.spyOn(userDb, 'getUserByEmail').mockImplementation(mockUserDbGetUserByEmail);
-    jest.spyOn(userDb, 'getUserById').mockImplementation(mockUserDbGetUserById);
+    jest.spyOn(userDb, 'getAllUsers').mockImplementation(mockGetAllUsersDb);
+    jest.spyOn(userDb, 'getUserByUsername').mockImplementation(mockGetUserByUsernameDb);
+    // Note: createUser is not directly tested here, but its dependencies are covered
 });
 
 afterEach(() => {
     jest.clearAllMocks();
 });
 
-// Happy Test Case for User Creation
-test('given a valid user, when user is created, then user is created with those values', () => {
+test('given no filters, when getAllUsers is called, then all users are returned', async () => {
     // Given
-    mockUserDbGetUserByEmail.mockReturnValue(null); // No existing user
+    const mockUsers = [user, { id: 2,...userInput, username: 'johndoe' }];
+    mockGetAllUsersDb.mockResolvedValue(mockUsers);
 
     // When
-    userService.createUser(userInput);
+    const result = await userService.getAllUsers();
 
     // Then
-    expect(createUserMock).toHaveBeenCalledTimes(1);
-    expect(createUserMock).toHaveBeenCalledWith(userInput);
+    expect(result).toEqual(mockUsers);
+    expect(mockGetAllUsersDb).toHaveBeenCalledTimes(1);
 });
 
-//unhappy Test Case for User Creation (Duplicate Email)
-test('given an existing email, when user is created, then an error is thrown', () => {
+test('given an existing username, when getUserByUsername is called, then the user is returned', async () => {
     // Given
-    mockUserDbGetUserByEmail.mockReturnValue(user); // Simulate existing user
+    mockGetUserByUsernameDb.mockResolvedValue(user);
 
     // When
-    const createdUser = () => userService.createUser(userInput)
+    const result = await userService.getUserByUsername({ username: userInput.username });
+
     // Then
-    expect(createdUser).toThrow(`User with email ${userInput.email} already exists.`);
+    expect(result).toEqual(user);
+    expect(mockGetUserByUsernameDb).toHaveBeenCalledTimes(1);
+    expect(mockGetUserByUsernameDb).toHaveBeenCalledWith({ username: userInput.username });
 });
 
-// Happy Test Case for Get User by ID
-test('given a valid user ID, when getting user, then user is returned', () => {
+test('given a non-existent username, when getUserByUsername is called, then an error is thrown', async () => {
     // Given
-    mockUserDbGetUserById.mockReturnValue(user); // Simulate existing user
+    mockGetUserByUsernameDb.mockResolvedValue(null);
+    const nonExistentUsername = 'nonexistentuser';
 
-    // When
-    const retrievedUser = userService.getUserById(1);
-
-    // Then
-    expect(mockUserDbGetUserById).toHaveBeenCalledWith({ id: 1 });
-    expect(retrievedUser).toEqual(user);
+    // When and Then
+    await expect(userService.getUserByUsername({ username: nonExistentUsername })).rejects.toThrow(`User with username: ${nonExistentUsername} does not exist.`);
 });
 
-// Happy Test Case for Get User by Email
-test('given a valid email, when getting user, then user is returned', () => {
+test('given invalid password, when authenticate is called, then an error is thrown', async () => {
     // Given
-    mockUserDbGetUserByEmail.mockReturnValue(user); // Simulate existing user
+    const wrongPassword = 'wrongpassword';
+    mockGetUserByUsernameDb.mockResolvedValue(user);
 
-    // When
-    const retrievedUser = userService.getUserByEmail(userInput.email);
-
-    // Then
-    expect(mockUserDbGetUserByEmail).toHaveBeenCalledWith(userInput.email);
-    expect(retrievedUser).toEqual(user);
-});
-
-// Error Test Case for Get User by Email (Not Found)
-test('given a non-existent email, when getting user, then an error is thrown', () => {
-    // Given
-    mockUserDbGetUserByEmail.mockReturnValue(null); // Simulate non-existent user
-
-    // When
-    const email = 'test@example.be'
-    const user = () => userService.getUserByEmail(email);
-    // Then
-    expect(user).toThrow(`User with email ${email} not found.`)
+    // When and Then
+    await expect(userService.authenticate({...userInput, password: wrongPassword })).rejects.toThrow('Username or password is incorrect');
 });

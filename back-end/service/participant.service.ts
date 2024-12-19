@@ -12,7 +12,7 @@ const getParticipantByUserName = async ({ username }: { username: string }): Pro
     const participant = await participantDb.getParticipantByUsername({ username });
     
     if (!participant) {
-        throw new Error(`Participant with username ${username} not found`);
+        throw new Error(`Participant not found`);
     }
     
     return participant; 
