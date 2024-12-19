@@ -16,76 +16,57 @@ const userInput: UserInput = {
     role: 'participant',
 };
 
-const user = new User({
-    ...userInput,
-});
+const participantUser = new User ({
+    ...userInput
+})
 
-const dateOfBirth = set(new Date(), { year: 2003, month: 1, date: 12 });
+const participantInput = {
+    user: participantUser,
+    dateOfBirth: set(new Date(), { year: 2003, month: 1, date: 12 }),
+}
 
+const participant = new Participant({
+    ...participantInput
+})
 
+const mockGetAllParticipantsDb = jest.fn();
+const mockGetParticipantByUserNameDb = jest.fn();
 
-const participantInput: ParticipantInput = {
-    id:1,
-    user: userInput,
-    dateOfBirth: dateOfBirth,
-};
+jest.spyOn(participantDb, 'getAllParticipants').mockImplementation(mockGetAllParticipantsDb);
+jest.spyOn(participantDb, 'getParticipantByUsername').mockImplementation(mockGetParticipantByUserNameDb);
 
-let createParticipantMock: jest.Mock;
-let mockUserDbGetUserById: jest.Mock;
-let mockParticipantDbGetParticipantByUserId: jest.Mock;
-
-beforeEach(() => {
-    createParticipantMock = jest.fn();
-    mockUserDbGetUserById = jest.fn();
-    mockParticipantDbGetParticipantByUserId = jest.fn();
-
-    jest.spyOn(participantDb, 'createParticipant').mockImplementation(createParticipantMock);
-    jest.spyOn(userDb, 'getUserById').mockImplementation(mockUserDbGetUserById);
-    jest.spyOn(participantDb, 'getParticipantByUserId').mockImplementation(mockParticipantDbGetParticipantByUserId);
-});
-
-afterEach(() => {
-    jest.clearAllMocks();
-});
-
-// Happy Test Case
-test('given a valid participant, when participant is created, then participant is created with those values', async () => {
+test('given participants, when getAllparticipants is called, then all participants are returned', async () => {
     // Given
-    mockUserDbGetUserById.mockReturnValue(user);
-
-    const participantInput = {
-        user: userInput,
-        dateOfBirth: dateOfBirth,
-        events: []
-    };
+    mockGetAllParticipantsDb.mockReturnValue(participant);
 
     // When
-    participantService.createParticipant(participantInput);
+    const result = await participantService.getAllParticipants();
 
     // Then
-    expect(createParticipantMock).toHaveBeenCalledTimes(1);
-    expect(createParticipantMock).toHaveBeenCalledWith(participantInput);
+    expect(result).toEqual(participant);
+    expect(mockGetAllParticipantsDb).toHaveBeenCalledTimes(1);
 });
 
-//Unhappy Test Case
-test('given a participant with an existing user id, when participant is created, then an error is thrown', async () => {
-    // given
-    const existingParticipant = new Participant({
-        user,
-        dateOfBirth: dateOfBirth,
-        events: [],
-    });
+test('given a valid username, when getParticipantByUserName is called, then the participant is returned', async () => {
+    // Given
+    mockGetParticipantByUserNameDb.mockReturnValue(participant);
+    const validUsername = participant.getUser().getUsername();
 
-    mockParticipantDbGetParticipantByUserId.mockReturnValue(existingParticipant); // Mock the existence of the participant
+    // When
+    const participantResult = await participantService.getParticipantByUserName({username: validUsername});
 
-    const participantInput = {
-        user: userInput,
-        dateOfBirth: dateOfBirth,
-    };
+    // Then
+    expect(participantResult).toEqual(participant);
+    expect(mockGetParticipantByUserNameDb).toHaveBeenCalledTimes(1);
+    expect(mockGetParticipantByUserNameDb).toHaveBeenCalledWith({ username: participant.getUser().getUsername() });
+});
 
-    // when
-    const createParticipant = () => participantService.createParticipant(participantInput);
 
-    // then
-    expect(createParticipant).toThrow(`Participant with user id ${userInput.id} already exists.`);
+test('given an invalid username, when getParticipantByUserName is called, then an error is thrown', async () => {
+    // Given
+    mockGetParticipantByUserNameDb.mockReturnValue(null);
+    const invalidUsername = ''; // Consider a more clearly invalid input if testing formats
+
+    // When and Then
+    await expect(participantService.getParticipantByUserName({username: invalidUsername})).rejects.toThrow(`Participant not found`);
 });
