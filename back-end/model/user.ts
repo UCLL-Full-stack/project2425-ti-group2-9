@@ -1,3 +1,4 @@
+
 import { User as UserPrisma } from '@prisma/client';
 import { Role } from '../types';
 
@@ -84,8 +85,8 @@ export class User {
         if (!user.role) {
             throw new Error('Role is required');
         }
-        if(user.email !== '^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$'){
-            throw new Error('Email is not correct')
+        if (!/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(user.email)) {
+            throw new Error('Email is not correct');
         }
     }
 

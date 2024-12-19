@@ -57,17 +57,28 @@ const participant = new Participant({
    
 });
 
+const event = new Event({
+   name,
+   description,
+   category,
+   startDate,
+   endDate,
+   organizer,
+   speakers: [speaker],
+   participants: [participant],
+});
+
 test('given: valid values for an event, when event is created, then event is created with those values', () => {   
    //given: create a new event
    const event = new Event({
-       name,
-       description,
-       category,
-       startDate,
-       endDate,
-       organizer,
-       speakers: [speaker],
-       participants: [participant],
+      name,
+      description,
+      category,
+      startDate,
+      endDate,
+      organizer,
+      speakers: [speaker],
+      participants: [participant],
    });
    //then: assert that the event has the given values
    expect(event.getName()).toEqual(name);
@@ -130,4 +141,23 @@ test(' given startdate greater then end date, when creating event, throws an err
      participants: [participant],
   });
   expect(createdEvent).toThrow('Start date and end date should be valid and the start date should be earlier than the end date');
+});
+
+test('giving existing event, when adding participant to event that is already participanting, then participant is added only once to that event and error is thrown',() =>{
+   //given 
+   const createdEvent = new Event({
+      name,
+      description,
+      category,
+      startDate,
+      endDate,
+      organizer,
+      speakers: [speaker],
+      participants: [participant]
+   });
+   //when participant add
+   const addParticipant = () => createdEvent.addParticipantToEvent(participant);
+   expect(addParticipant).toThrow('You are already registered to attend this event');
+   expect(event.getParticipants()).toContain(participant);
+   expect(event.getParticipants()).toHaveLength(1);
 });
