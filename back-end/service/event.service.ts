@@ -168,12 +168,13 @@ const getEventsByCategory = async(category: string): Promise<Event[]> => {
 
 const deleteEvent = async ({id, username, role}
     :{id: number; username: string; role: Role}):Promise<Event | null> =>{
-        if(role !== 'organizer' ){
-            throw new UnauthorizedError('credentials_required', {
-                message: 'You are not authorized to access this resource.',
-            });
+        if(role === 'organizer' || role==='admin'){
+            return await eventDb.deleteEvent({id})
         }
-        return await eventDb.deleteEvent({id})
+        throw new UnauthorizedError('credentials_required', {
+            message: 'You are not authorized to access this resource.',
+        });
+        
 }
 
 export default {
