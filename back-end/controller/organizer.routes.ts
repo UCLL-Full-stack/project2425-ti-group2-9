@@ -73,7 +73,6 @@ const organizerRouter = express.Router();
 organizerRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const request = req as Request & { auth: { username: string; role: Role } };
-        
         const { username, role } = request.auth;
         const organizers = await organizerService.getAllOrganizers({ username, role });
         res.status(200).json(organizers);

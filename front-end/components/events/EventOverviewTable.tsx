@@ -46,7 +46,6 @@ const EventOverviewTable: React.FC<Props> = ({ events }: Props) => {
   return (
     <div>
       <h2 className="text-2xl font-semibold text-gray-800 mb-4">Find and attend an event</h2>
-      {/* Search Input */}
       <div className="mb-4">
         <input
           type="text"
@@ -57,7 +56,6 @@ const EventOverviewTable: React.FC<Props> = ({ events }: Props) => {
         />
       </div>
 
-      {/* Events Table */}
       {filteredEvents.length > 0 ? (
         <table className="w-full text-left border-collapse">
           <thead className="bg-gray-100 text-gray-700 rounded-t-lg">
@@ -83,8 +81,8 @@ const EventOverviewTable: React.FC<Props> = ({ events }: Props) => {
                 <td className="p-4 text-gray-700">{event.name}</td>
                 <td className="p-4 text-gray-700">{event.description}</td>
                 <td className="p-4 text-gray-700">{event.category}</td>
-                <td className="p-4 text-gray-700">{new Date(event.startDate).toDateString()}</td>
-                <td className="p-4 text-gray-700">{new Date(event.endDate).toDateString()}</td>
+                <td className="p-4 text-gray-700">{new Date(event.startDate).toLocaleString()}</td>
+                <td className="p-4 text-gray-700">{new Date(event.endDate).toLocaleString()}</td>
                 {(loggedInUser?.role === 'participant') && (
                   <td>
                   <button
