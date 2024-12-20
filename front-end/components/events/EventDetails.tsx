@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Event } from "@types";
+import React, { useEffect, useState } from "react";
+import { Event, User } from "@types";
 import Header from "@components/headers";
 import EventService from "@services/EventService";
 import router from "next/router";
@@ -11,11 +11,24 @@ interface EventDetailsProps {
 const EventDetails: React.FC<EventDetailsProps> = ({ event }) => {
 
   const [update, setUpdate] = useState<boolean>(false);
-
+  const [loggedInUser, setLoggedInUser] = useState<User | null>(null);
   const [name, setName] = useState<string>('');
-  const [id, setId] = useState<string>('')
+  const [id, setId] = useState<string>('');
   const [errors, setErrors] = useState<string[]>([]);
   const [status, setStatus] = useState<string>('');
+
+  useEffect(() => {
+      const userString = sessionStorage.getItem("loggedInUser");
+      if (userString) {
+        try {
+          const parsedUser = JSON.parse(userString) as User;
+          setLoggedInUser(parsedUser);
+        } catch (error) {
+          console.error("Failed to parse user from sessionStorage:", error);
+        }
+      }
+    }, []);
+
   const validate = (): boolean => {
       let isValid = true;
       setErrors([]);
@@ -25,6 +38,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ event }) => {
       }
       return isValid;
   };
+  
   const handleSubmit = async (e: React.FormEvent) => {
       e.preventDefault();
       if (!validate()) {
@@ -46,18 +60,16 @@ const EventDetails: React.FC<EventDetailsProps> = ({ event }) => {
     setUpdate(true);
   }
 
-  const handleDelete = async(event: Event | null) => {
-    if (event){
-      const response =  await EventService.deleteEvent(event);
-      if(response.ok){
+  const handleDelete = async (event: Event | null) => {
+    if (event) {
+      const response = await EventService.deleteEvent(event);
+      if (response.ok) {
         setTimeout(() => {
           router.push("/events/overview");
         }, 2000);
       }
     }
-      
   }
-
 
   return (
     <div className="flex justify-center items-center py-6">
@@ -80,53 +92,83 @@ const EventDetails: React.FC<EventDetailsProps> = ({ event }) => {
               {new Date(event.endDate).toLocaleDateString()}{" "}
               {new Date(event.endDate).toLocaleTimeString()}
             </span>
-            
           </div>
-          <button
-                className="text-white bg-red-700 hover:bg-red-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-                onClick={() => {
-                  handleDelete(event);
-                }}
-          >DELETE</button>
-          <button
+          <div className="flex justify-between items-center text-gray-700 mt-2">
+            <span className="font-semibold">Organizer</span>
+            <span>
+              {event.organizer.companyName}
+            </span>           
+          </div>
+          <div className="flex justify-between items-center text-gray-700 mt-2">
+            <span className="font-semibold">Speakers</span>
+            <span>
+              {event.speakers?.length > 0 ? (
+                event.speakers.map((speaker, index) => (
+                  <span key={index}>
+                    {speaker.user.fullname} - {speaker.expertise}
+                    {index < event.speakers.length - 1 && ', '}
+                  </span>
+                ))
+              ) : (
+                'No speakers available'
+              )}
+            </span>
+            {(loggedInUser?.role === 'admin' || loggedInUser?.role === 'participant') && (
+              <>
+                <button
+                  className="text-white bg-red-700 hover:bg-red-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+                  onClick={() => handleDelete(event)}
+                >
+                  DELETE
+                </button>
+                <button
+                  className="text-white bg-blue-700 hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+                  onClick={updateForm}
+                >
+                  UPDATE
+                </button>
+              </>
+            )}
+          </div>
+        
+          {update && (
+            <form onSubmit={handleSubmit}>
+              {!!errors.length && (
+                <ul className="text-red-800 rounded-lg" role="alert">
+                  {errors.map((error, index) => (
+                    <li key={index}>{error}</li>
+                  ))}
+                </ul>
+              )}
+              {status && (
+                <p className="text-green-800" role="alert">
+                  {status}
+                </p>
+              )}
+              <div>
+                <label className="block text-gray-700">Event Name</label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                />
+              </div>
+              <button 
+                type="submit"
                 className="text-white bg-blue-700 hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-                onClick={() => {
-                  updateForm();
-                }}
-          >UPDATE</button>
+              >
+                Update Name
+              </button>
+            </form>
+          )}
         </div>
-        {update &&
-          <form onSubmit={handleSubmit}>
-            {!!errors.length && (
-              <ul className="text-red-800 rounded-lg" role="alert">
-                {errors.map((error, index) => (
-                  <li key={index}>{error}</li>
-                ))}
-              </ul>
-            )}
-            {status && (
-              <p className="text-green-800" role="alert">
-                {status}
-              </p>
-            )}
-            <div>
-              <label className="block text-gray-700">Event Name</label>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
-              />
-            </div>
-            <button type="submit" className="text-white bg-blue-700 hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
-              Update Name
-            </button>
-            
-          </form>
-        }
       </div>
     </div>
   );
 };
 
 export default EventDetails;
+
+
+
