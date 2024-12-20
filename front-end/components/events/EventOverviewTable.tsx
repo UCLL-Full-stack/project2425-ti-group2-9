@@ -13,6 +13,7 @@ const EventOverviewTable: React.FC<Props> = ({ events }: Props) => {
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [loggedInUser, setLoggedInUser] = useState<User | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [status, setStatus] = useState<string>('');
   const router = useRouter();
 
   useEffect(() => {
@@ -34,6 +35,7 @@ const EventOverviewTable: React.FC<Props> = ({ events }: Props) => {
 
   const handleAttending = async (event: Event) => {
     EventService.attendingEvent(event);
+    setStatus(`You are registerd`);
     router.push('/')
   };
 
@@ -45,6 +47,7 @@ const EventOverviewTable: React.FC<Props> = ({ events }: Props) => {
   );
 
   return (
+    
     <div>
       <h2 className="text-2xl font-semibold text-gray-800 mb-4">Find and attend an event</h2>
       <div className="mb-4">
@@ -56,6 +59,11 @@ const EventOverviewTable: React.FC<Props> = ({ events }: Props) => {
           onChange={(e) => setSearchQuery(e.target.value)}
         />
       </div>
+      {status && (
+      <p className="text-green-800" role="alert">
+        {status}
+      </p>
+      )}
 
       {filteredEvents.length > 0 ? (
         <table className="w-full text-left border-collapse">
