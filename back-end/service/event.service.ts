@@ -115,7 +115,7 @@ const updateEvent = async({
 }): Promise<Event> => {
     if(role === 'admin' || role === 'organizer'){
         const event =  await eventDb.updateEventName({id, name})
-        if(!name){
+        if(!name || name === ''){
             throw new Error('please give name')
         }
         if(!event){
