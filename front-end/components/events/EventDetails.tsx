@@ -105,7 +105,9 @@ const EventDetails: React.FC<EventDetailsProps> = ({ event }) => {
               {event.speakers?.length > 0 ? (
                 event.speakers.map((speaker, index) => (
                   <span key={index}>
-                    {speaker.user.fullname} - {speaker.expertise}
+                    {speaker.user.firstName}
+                    
+                    {speaker.user.lastName}
                     {index < event.speakers.length - 1 && ', '}
                   </span>
                 ))
@@ -113,7 +115,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ event }) => {
                 'No speakers available'
               )}
             </span>
-            {(loggedInUser?.role === 'admin' || loggedInUser?.role === 'participant') && (
+            {(loggedInUser?.role === 'admin' || loggedInUser?.role === 'organizer') && (
               <>
                 <button
                   className="text-white bg-red-700 hover:bg-red-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
