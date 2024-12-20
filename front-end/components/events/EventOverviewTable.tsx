@@ -34,6 +34,7 @@ const EventOverviewTable: React.FC<Props> = ({ events }: Props) => {
 
   const handleAttending = async (event: Event) => {
     EventService.attendingEvent(event);
+    router.push('/')
   };
 
   const filteredEvents = events.filter(
