@@ -61,7 +61,7 @@ const organizers: React.FC = () => {
                     {data &&(
                         <OrganizerOverviewTable 
                             organizers={data.organizers}
-                            selectOrganizer={handleOrganizerSelection}
+                            //selectOrganizer={handleOrganizerSelection}
                         />
                     )}
                 </section>
