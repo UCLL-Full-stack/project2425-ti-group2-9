@@ -44,6 +44,10 @@ const createUser = async ({
         throw new Error(`User with username ${username} is already registered.`);
     }
 
+    if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/.test(password)) {
+        throw new Error('Password must be at least 8 characters long and include an uppercase letter, a lowercase letter, a number');
+    }
+
     const hashedPassword = await bcrypt.hash(password, 12);
     const user = new User({ username, password: hashedPassword, firstName, lastName, email, role });
 

@@ -89,9 +89,9 @@ export class User {
             throw new Error('Email is not correct');
         }
         //Password min 8 chars, 1 uppercase, 1 lowercase, 1 number
-        if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/.test(user.password)) {
-            throw new Error('Password must be at least 8 characters long and include an uppercase letter, a lowercase letter, a number');
-        }
+        // if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/.test(user.password)) {
+        //     throw new Error('Password must be at least 8 characters long and include an uppercase letter, a lowercase letter, a number');
+        // }
     }
 
     equals(user: User): boolean {

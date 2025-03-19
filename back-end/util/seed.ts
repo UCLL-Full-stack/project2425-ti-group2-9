@@ -15,7 +15,7 @@ const main = async () => {
     const admin = await prisma.user.create({
         data: {
             username: 'admin',
-            password: await bcrypt.hash('admin123', 12),
+            password: await bcrypt.hash('Admin123', 12),
             firstName: 'admin',
             lastName: 'admin',
             email: 'administration@ucll.be',
@@ -26,7 +26,7 @@ const main = async () => {
     const fransSpeaker = await prisma.user.create({
         data: {
             username: "frans",
-            password: await bcrypt.hash("frans123", 12),
+            password: await bcrypt.hash("Frans123", 12),
             firstName: "Frans",
             lastName: "Spreker",
             email: "frans@example.com",
@@ -37,7 +37,7 @@ const main = async () => {
     const mariaSpeaker = await prisma.user.create({
         data: {
             username: "maria",
-            password: await bcrypt.hash("maria123", 12),
+            password: await bcrypt.hash("Maria123", 12),
             firstName: "Maria",
             lastName: "Spreker",
             email: "maria@example.com",
@@ -48,7 +48,7 @@ const main = async () => {
     const johnSpeaker = await prisma.user.create({
         data: {
             username: "john",
-            password: await bcrypt.hash("john123", 12),
+            password: await bcrypt.hash("John123", 12),
             firstName: "John",
             lastName: "Spreker",
             email: "john@example.com",
@@ -59,7 +59,7 @@ const main = async () => {
     const janOrganizer = await prisma.user.create({
         data: {
             username: "jan",
-            password: await bcrypt.hash("jan123", 12),
+            password: await bcrypt.hash("JanOrg123", 12),
             firstName: "Jan",
             lastName: "Organisator",
             email: "jan@example.com",

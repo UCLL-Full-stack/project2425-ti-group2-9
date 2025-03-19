@@ -1,25 +1,25 @@
 -- CreateTable
+CREATE TABLE "User" (
+    "id" SERIAL NOT NULL,
+    "username" TEXT NOT NULL,
+    "firstName" TEXT NOT NULL,
+    "lastName" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "password" TEXT NOT NULL,
+    "role" TEXT NOT NULL,
+
+    CONSTRAINT "User_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "Organizer" (
     "id" SERIAL NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
-    "name" TEXT NOT NULL,
-    "email" TEXT NOT NULL,
-    "password" TEXT NOT NULL,
+    "companyName" TEXT NOT NULL,
     "userId" INTEGER NOT NULL,
 
     CONSTRAINT "Organizer_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "Speaker" (
-    "id" SERIAL NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-    "userId" INTEGER NOT NULL,
-    "experise" TEXT NOT NULL,
-
-    CONSTRAINT "Speaker_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -29,10 +29,23 @@ CREATE TABLE "Event" (
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "name" TEXT NOT NULL,
     "description" TEXT NOT NULL,
-    "category" TIMESTAMP(3) NOT NULL,
+    "category" TEXT NOT NULL,
+    "startDate" TIMESTAMP(3) NOT NULL,
+    "endDate" TIMESTAMP(3) NOT NULL,
     "organizerId" INTEGER NOT NULL,
 
     CONSTRAINT "Event_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Speaker" (
+    "id" SERIAL NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "userId" INTEGER NOT NULL,
+    "expertise" TEXT NOT NULL,
+
+    CONSTRAINT "Speaker_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -59,7 +72,10 @@ CREATE TABLE "_EventToSpeaker" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Organizer_email_key" ON "Organizer"("email");
+CREATE UNIQUE INDEX "User_username_key" ON "User"("username");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Organizer_userId_key" ON "Organizer"("userId");
@@ -86,10 +102,10 @@ CREATE INDEX "_EventToSpeaker_B_index" ON "_EventToSpeaker"("B");
 ALTER TABLE "Organizer" ADD CONSTRAINT "Organizer_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Speaker" ADD CONSTRAINT "Speaker_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Event" ADD CONSTRAINT "Event_organizerId_fkey" FOREIGN KEY ("organizerId") REFERENCES "Organizer"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Event" ADD CONSTRAINT "Event_organizerId_fkey" FOREIGN KEY ("organizerId") REFERENCES "Organizer"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Speaker" ADD CONSTRAINT "Speaker_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Participant" ADD CONSTRAINT "Participant_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
