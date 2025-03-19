@@ -88,10 +88,11 @@ export class User {
         if (!/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(user.email)) {
             throw new Error('Email is not correct');
         }
-        //Password min 8 chars, 1 uppercase, 1 lowercase, 1 number
-        if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/.test(user.password)) {
-            throw new Error('Password must be at least 8 characters long and include an uppercase letter, a lowercase letter, a number');
-        }
+        // //Password min 8 chars, 1 uppercase, 1 lowercase, 1 number
+        // if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/.test(user.password)) {
+        //     console.log(user.password);
+        //     throw new Error('Password must be at least 8 characters long and include an uppercase letter, a lowercase letter, a number');
+        // }
     }
 
     equals(user: User): boolean {

@@ -1,8 +1,9 @@
 import bcrypt from 'bcrypt';
 import userDB from '../repository/user.db';
 import { AuthenticationResponse, UserInput } from '../types';
-import { generateJwtToken } from '../util/jwt';
+import { generateJwtToken, verifyJwtToken } from '../util/jwt';
 import { User } from '../model/user';
+import { verify } from 'crypto';
 
 const getAllUsers = async (): Promise<User[]> => userDB.getAllUsers();
 
@@ -42,6 +43,10 @@ const createUser = async ({
 
     if (existingUser) {
         throw new Error(`User with username ${username} is already registered.`);
+    }
+
+    if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/.test(password)) {
+        throw new Error('Password must be at least 8 characters long and include an uppercase letter, a lowercase letter, a number');
     }
 
     const hashedPassword = await bcrypt.hash(password, 12);

@@ -87,8 +87,25 @@
 import express, { NextFunction, Request, Response } from 'express';
 import eventService from '../service/event.service';
 import { AttendingInput, EventInput, Role } from '../types';
+import { verifyJwtToken } from '../util/jwt';
 
 const eventRouter = express.Router();
+
+const jwtMiddleware = (req: Request, res: Response, next: NextFunction) => {
+    const token = req.headers['authorization']?.split(' ')[1]; // Extract token from 'Authorization: Bearer <token>'
+
+    if (!token) {
+        return res.status(401).json({ message: 'Token is required' });
+    }
+
+    try {
+        const decoded = verifyJwtToken(token); // Verify the token using the public key
+        req.auth = { username: decoded.username, role: decoded.role }; // Attach user info to request
+        next(); // Proceed to the next middleware or route handler
+    } catch (error) {
+        return res.status(401).json({ message: 'Invalid or expired token' });
+    }
+};
 
 /**
  * @swagger
@@ -169,6 +186,7 @@ eventRouter.get('/', async (req: Request, res: Response, next: NextFunction) => 
     try {
         const request = req as Request & { auth: { username: string; role: Role } };
         const { username, role } = request.auth;
+        console.log('request.auth');
         const events = await eventService.getAllEvents({username, role});
         res.status(200).json(events);
     } catch (error) {

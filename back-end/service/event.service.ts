@@ -130,6 +130,7 @@ const updateEvent = async({
 }
 
 const getAllEvents = async({username, role}:{username: string;role:Role}): Promise<Event[]> => {
+    console.log('request.auth');
     if(role === 'admin' || role === 'participant'){
         return eventDb.getAllEvents()
     }else if (role === 'organizer'){
