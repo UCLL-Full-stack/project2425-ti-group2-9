@@ -30,7 +30,7 @@ const EventOverviewTable: React.FC<Props> = ({ events }: Props) => {
 
   const selectEvent = (event: Event) => {
     setSelectedEvent(event);
-    router.push(`/events/${event.name}`)
+    router.push(`/events/${event.id}`)
   };
 
   const handleAttending = async (event: Event) => {

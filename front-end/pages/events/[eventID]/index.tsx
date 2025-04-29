@@ -14,11 +14,11 @@ const GetEventByName: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   const router = useRouter();
-  const { eventName } = router.query;
+  const { eventID } = router.query;
 
-  const fetchEventByName = async (name: string) => {
+  const fetchEventByID = async (id: string) => {
     try {
-      const eventResponse = await EventService.getEventByName(name);
+      const eventResponse = await EventService.getEventByID(id);
       if (!eventResponse.ok) {
         if (eventResponse.status === 401) {
           setError("You need to be logged in to access this page");
@@ -40,14 +40,14 @@ const GetEventByName: React.FC = () => {
   };
 
   
-  const { data } = useSWR(eventName ? `event-${eventName}` : null, () => fetchEventByName(eventName as string
+  const { data } = useSWR(eventID ? `event-${eventID}` : null, () => fetchEventByID(eventID as string
   ), {
     refreshInterval: 5000, 
     revalidateOnFocus: true, 
   });
 
   useInterval(() => {
-    if (eventName) fetchEventByName(eventName as string); 
+    if (eventID) fetchEventByID(eventID as string); 
   }, 5000);
 
 
