@@ -36,6 +36,18 @@ const getEventByName = async(eventName: string) => {
     });
 };
 
+const getEventByID = async(id: string) => {
+    const user = sessionStorage.getItem("loggedInUser") ;
+    const token = user ? JSON.parse(user).token : null;
+    return fetch(process.env.NEXT_PUBLIC_API_URL+`/events/${id}`,{
+        method: 'GET',
+        headers:{
+            'Content-Type': 'application/json',
+            Authorization:  `Bearer ${token}`
+        }
+    });
+};
+
 const deleteEvent = async(event: Event) => {
     const user = sessionStorage.getItem("loggedInUser") ;
     const token = user ? JSON.parse(user).token : null;
@@ -86,7 +98,8 @@ const EventService = {
     attendingEvent,
     getEventByName,
     deleteEvent,
-    updateEvent
+    updateEvent,
+    getEventByID
 }
 
 export default EventService;
