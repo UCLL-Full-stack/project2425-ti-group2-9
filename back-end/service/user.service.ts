@@ -4,6 +4,8 @@ import { AuthenticationResponse, UserInput } from '../types';
 import { generateJwtToken } from '../util/jwt';
 import { User } from '../model/user';
 
+import xss from 'xss';
+
 const getAllUsers = async (): Promise<User[]> => userDB.getAllUsers();
 
 const getUserByUsername = async ({ username }: { username: string }): Promise<User> => {
@@ -15,7 +17,9 @@ const getUserByUsername = async ({ username }: { username: string }): Promise<Us
 };
 
 const authenticate = async ({ username, password }: UserInput): Promise<AuthenticationResponse> => {
-    const user = await getUserByUsername({ username });
+    const sanitizedUsername = xss(username);
+
+    const user = await getUserByUsername({ username: sanitizedUsername });
 
     const isValidPassword = await bcrypt.compare(password, user.getPassword());
 
@@ -23,13 +27,13 @@ const authenticate = async ({ username, password }: UserInput): Promise<Authenti
         throw new Error('Username or password is incorrect');
     }
     return {
-        token: generateJwtToken({ username, role: user.getRole() }),
+        token: generateJwtToken({ username: sanitizedUsername, role: user.getRole() }),
         username: username,
         fullname: `${user.getFirstName()} ${user.getLastName()}`,
         role: user.getRole(),
     };
-};
 
+};
 const createUser = async ({
     username,
     password,
@@ -38,7 +42,14 @@ const createUser = async ({
     email,
     role,
 }: UserInput): Promise<User> => {
-    const existingUser = await userDB.getUserByUsername({ username });
+    const hashedPassword = await bcrypt.hash(password, 12);
+
+    const sanitizedUsername = xss(username);
+    const sanitizedFirstName = xss(firstName);
+    const sanitizedLastName = xss(lastName);
+    const sanitizedEmail = xss(email);
+
+    const existingUser = await userDB.getUserByUsername({ username: sanitizedUsername });
 
     if (existingUser) {
         throw new Error(`User with username ${username} is already registered.`);
@@ -48,8 +59,8 @@ const createUser = async ({
         throw new Error('Password must be at least 8 characters long and include an uppercase letter, a lowercase letter, a number');
     }
 
-    const hashedPassword = await bcrypt.hash(password, 12);
-    const user = new User({ username, password: hashedPassword, firstName, lastName, email, role });
+    
+    const user = new User({ username:sanitizedUsername, password: hashedPassword, firstName: sanitizedFirstName, lastName: sanitizedLastName, email: sanitizedEmail, role });
 
     return await userDB.createUser(user);
 };

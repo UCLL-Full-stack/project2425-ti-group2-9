@@ -9,6 +9,7 @@ import { Participant } from "../model/participant";
 import { error } from "console";
 import { eventNames } from "process";
 
+import xss from "xss";
 
 const createEvent = async ({
     name,
@@ -60,10 +61,14 @@ const createEvent = async ({
         }
     }
 
+    const sanitizedName = xss(name);
+    const sanitizedDescription = xss(description);
+    const sanitizedCategory = xss(category);
+
     const event = new Event({
-        name,
-        description,
-        category,
+        name: sanitizedName,
+        description: sanitizedDescription,
+        category : sanitizedCategory,
         startDate,
         endDate,
         organizer,
