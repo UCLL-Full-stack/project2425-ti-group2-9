@@ -85,9 +85,9 @@ export class User {
         if (!user.role) {
             throw new Error('Role is required');
         }
-        if (!/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(user.email)) {
-            throw new Error('Email is not correct');
-        }
+        // if (!/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(user.email)) {
+        //     throw new Error('Email is not correct');
+        // }
         //Password min 8 chars, 1 uppercase, 1 lowercase, 1 number
         // if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/.test(user.password)) {
         //     throw new Error('Password must be at least 8 characters long and include an uppercase letter, a lowercase letter, a number');

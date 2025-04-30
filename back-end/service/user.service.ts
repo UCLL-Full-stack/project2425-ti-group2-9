@@ -1,12 +1,30 @@
 import bcrypt from 'bcrypt';
 import userDB from '../repository/user.db';
-import { AuthenticationResponse, UserInput } from '../types';
+import { AuthenticationResponse, Role, UserInput } from '../types';
 import { generateJwtToken } from '../util/jwt';
 import { User } from '../model/user';
+import { UnauthorizedError } from "express-jwt";
 
 import xss from 'xss';
+import { get } from 'http';
 
 const getAllUsers = async (): Promise<User[]> => userDB.getAllUsers();
+
+const getAllUsersNotAdmin = async ({username, role}:{username:string, role: Role}): Promise<User[]> => {
+    if(role !== 'admin'){
+        throw new Error('You are not authorized to access this resource.');
+    }
+    return userDB.getAllUsersNotAdmin()
+};
+
+const deleteUser = async ({id, username, role}:{id: number, username: string, role: Role}): Promise<User | null> => {
+    if(role === 'admin'){
+        return await userDB.deleteUser({ id });
+    }
+    throw new UnauthorizedError('credentials_required', {
+        message: 'You are not authorized to access this resource.',
+    });     
+}
 
 const getUserByUsername = async ({ username }: { username: string }): Promise<User> => {
     const user = await userDB.getUserByUsername({ username });
@@ -59,10 +77,15 @@ const createUser = async ({
         throw new Error('Password must be at least 8 characters long and include an uppercase letter, a lowercase letter, a number');
     }
 
+    if(role){
+        const user = new User({ username:sanitizedUsername, password: hashedPassword, firstName: sanitizedFirstName, lastName: sanitizedLastName, email: sanitizedEmail, role});
+        return await userDB.createUser(user);
+    }
+
     
-    const user = new User({ username:sanitizedUsername, password: hashedPassword, firstName: sanitizedFirstName, lastName: sanitizedLastName, email: sanitizedEmail, role });
+    const user = new User({ username:sanitizedUsername, password: hashedPassword, firstName: sanitizedFirstName, lastName: sanitizedLastName, email: sanitizedEmail, role: 'participant'});
 
     return await userDB.createUser(user);
 };
 
-export default { getUserByUsername, authenticate, createUser, getAllUsers };
+export default { getUserByUsername, authenticate, createUser, getAllUsers, getAllUsersNotAdmin, deleteUser };

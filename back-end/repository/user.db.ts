@@ -11,6 +11,34 @@ const getAllUsers = async (): Promise<User[]> => {
     }
 };
 
+const getAllUsersNotAdmin = async (): Promise<User[]> => {
+    try {
+        const usersPrisma = await database.user.findMany({
+            where: {
+                role: {
+                    not: 'admin',
+                },
+            },
+        });
+        return usersPrisma.map((userPrisma) => User.from(userPrisma));
+    } catch (error) {
+        console.error(error);
+        throw new Error('Database error. See server log for details.');
+    }
+}
+
+const deleteUser = async ({ id }: { id: number }): Promise<User | null> => {
+    try {
+        const userPrisma = await database.user.delete({
+            where: { id },
+        });
+        return userPrisma ? User.from(userPrisma) : null;
+    } catch (error) {
+        console.error(error);
+        throw new Error('Database error. See server log for details.');
+    }
+}
+
 const getUserById = async ({ id }: { id: number }): Promise<User | null> => {
     try {
         const userPrisma = await database.user.findUnique({
@@ -61,4 +89,6 @@ export default {
     createUser,
     getUserById,
     getUserByUsername,
+    getAllUsersNotAdmin,
+    deleteUser
 };
